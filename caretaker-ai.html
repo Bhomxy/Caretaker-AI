@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Caretaker AI — Property OS</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --teal:#2BB8A3;--teal-d:#1A9E8A;--teal-dk:#0D7A6A;--teal-l:#4DD4C0;--teal-pale:#E6F7F5;
+  --gold:#F0A520;--gold-d:#D4870A;--gold-pale:#FEF3C7;
+  --sb:#0D3D36;--sb-mid:#134E45;--sb-border:rgba(255,255,255,0.08);
+  --cr:#F4FAF9;--su:#FFFFFF;--bd:#E0ECEB;--bds:#C4DAD8;
+  --tp:#0D1F1C;--ts:#476B66;--tm:#8FADA9;
+  --red:#DC2626;--rp:#FEF2F2;--bl:#2563EB;--bp:#EFF6FF;
+  --gn:#059669;--gp:#ECFDF5;--pu:#7C3AED;--pp:#F5F3FF;
+  --r:10px;--rs:7px;--font:'Outfit',sans-serif;
+  --shadow:0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
+}
+html,body,#root{height:100%;font-family:var(--font);}
+body{background:var(--cr);color:var(--tp);-webkit-font-smoothing:antialiased;}
+/* ─── SHELL ─── */
+.shell{display:flex;height:100vh;overflow:hidden;}
+/* ─── SIDEBAR ─── */
+.sidebar{width:244px;background:var(--sb);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:0;}
+.sb-logo{padding:18px 18px 16px;border-bottom:var(--sb-border) 1px solid;display:flex;align-items:center;min-height:76px;}
+.sb-logo img{height:40px;width:auto;object-fit:contain;display:block;}
+.prop-sw{margin:12px 12px 6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:9px 12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .12s;}
+.prop-sw:hover{background:rgba(255,255,255,0.09);}
+.prop-n{font-size:13px;color:#fff;font-weight:600;}
+.prop-c{font-size:11px;color:rgba(255,255,255,0.38);margin-top:2px;}
+.nav-sec{padding:10px 0 2px;}
+.nav-lbl{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,0.28);padding:0 18px;margin-bottom:4px;}
+.nav-it{display:flex;align-items:center;gap:9px;padding:7px 18px;cursor:pointer;margin:1px 8px;border-radius:7px;font-size:13.5px;color:rgba(255,255,255,0.56);font-weight:500;position:relative;transition:all .12s;user-select:none;}
+.nav-it:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.88);}
+.nav-it.active{background:rgba(240,165,32,.14);color:#fff;font-weight:600;}
+.nav-it.active::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:3px;background:var(--gold);border-radius:0 3px 3px 0;margin-left:-8px;}
+.nav-ic{font-size:14px;width:17px;text-align:center;flex-shrink:0;}
+.nav-bd{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;}
+.nav-bd.gold{background:var(--gold);}
+.sb-ft{margin-top:auto;border-top:var(--sb-border) 1px solid;padding:12px;}
+.uc{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:background .12s;}
+.uc:hover{background:rgba(255,255,255,0.07);}
+.u-nm{font-size:13px;color:#fff;font-weight:600;}
+.u-rl{font-size:11px;color:rgba(255,255,255,0.36);}
+/* ─── TOPBAR ─── */
+.topbar{height:56px;background:var(--su);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0;}
+.pg-ttl{font-size:15px;font-weight:700;color:var(--tp);letter-spacing:-.01em;}
+.srch{display:flex;align-items:center;gap:8px;background:var(--cr);border:1.5px solid var(--bd);border-radius:8px;padding:6px 13px;margin-left:auto;width:260px;transition:border-color .15s;}
+.srch:focus-within{border-color:var(--teal);}
+.srch input{border:none;outline:none;background:transparent;font-family:var(--font);font-size:13px;color:var(--tp);flex:1;}
+.srch input::placeholder{color:var(--tm);}
+.srch-k{background:var(--bd);border-radius:3px;padding:1px 5px;font-size:10px;color:var(--tm);font-family:monospace;}
+.tb-acts{display:flex;align-items:center;gap:6px;margin-left:10px;}
+.ib{width:34px;height:34px;border-radius:7px;background:transparent;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--ts);position:relative;transition:all .12s;}
+.ib:hover{background:var(--cr);border-color:var(--bds);}
+.nd{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid #fff;}
+.tb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold-l,#F5BC4A),var(--teal));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;margin-left:4px;border:2px solid var(--bd);}
+/* ─── MAIN ─── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.content{flex:1;overflow-y:auto;padding:22px 24px;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--bds);border-radius:10px;}
+/* ─── CARDS ─── */
+.card{background:var(--su);border:1px solid var(--bd);border-radius:var(--r);}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.card-ttl{font-size:13.5px;font-weight:700;color:var(--tp);}
+.card-bd{padding:18px;}
+/* ─── METRICS ─── */
+.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.mc{background:var(--su);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);}
+.mc:hover{box-shadow:var(--shadow);border-color:var(--bds);}
+.mc-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:10px;}
+.ml{font-size:11px;color:var(--ts);font-weight:600;letter-spacing:.01em;margin-bottom:6px;text-transform:uppercase;}
+.mv{font-size:26px;font-weight:800;color:var(--tp);letter-spacing:-.03em;line-height:1;margin-bottom:5px;}
+.mdl{font-size:12px;font-weight:500;}
+.up{color:var(--gn);}.dn{color:var(--red);}
+/* ─── BADGES ─── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.bd-dot{width:5px;height:5px;border-radius:50%;}
+.b-open{background:#FEF3C7;color:#92400E;}.b-open .bd-dot{background:var(--gold);}
+.b-in-progress{background:var(--bp);color:#1D4ED8;}.b-in-progress .bd-dot{background:var(--bl);}
+.b-done{background:var(--gp);color:#065F46;}.b-done .bd-dot{background:var(--gn);}
+.b-critical{background:var(--rp);color:var(--red);}.b-critical .bd-dot{background:var(--red);}
+.b-paid{background:var(--gp);color:#065F46;}.b-paid .bd-dot{background:var(--gn);}
+.b-overdue{background:var(--rp);color:var(--red);}.b-overdue .bd-dot{background:var(--red);}
+.b-pending{background:#F3F4F6;color:#374151;}.b-pending .bd-dot{background:#9CA3AF;}
+.b-high{background:#FEF3C7;color:#92400E;}.b-high .bd-dot{background:var(--gold);}
+.b-medium{background:#F3F4F6;color:#374151;}.b-medium .bd-dot{background:#9CA3AF;}
+.b-low{background:var(--gp);color:#065F46;}.b-low .bd-dot{background:var(--gn);}
+.b-available{background:var(--gp);color:#065F46;}.b-available .bd-dot{background:var(--gn);}
+.b-busy{background:var(--bp);color:#1D4ED8;}.b-busy .bd-dot{background:var(--bl);}
+.b-inactive{background:#F3F4F6;color:#6B7280;}.b-inactive .bd-dot{background:#9CA3AF;}
+.b-sent{background:var(--gp);color:#065F46;}.b-sent .bd-dot{background:var(--gn);}
+.b-scheduled{background:var(--pp);color:var(--pu);}.b-scheduled .bd-dot{background:var(--pu);}
+.b-draft{background:#F3F4F6;color:#374151;}.b-draft .bd-dot{background:#9CA3AF;}
+/* ─── TABLE ─── */
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--tm);padding:10px 16px;border-bottom:1px solid var(--bd);white-space:nowrap;}
+td{padding:11px 16px;font-size:13px;color:var(--tp);border-bottom:1px solid var(--bd);white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tr.clickable{cursor:pointer;}
+tr.clickable:hover td{background:var(--teal-pale);}
+.pt{color:var(--ts);font-size:12.5px;}
+.pn{font-weight:600;}
+/* ─── ACTIVITY ─── */
+.act-it{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);}
+.act-it:last-child{border-bottom:none;}
+.act-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;flex-shrink:0;}
+.act-tx{font-size:12.5px;color:var(--tp);line-height:1.45;}
+.act-tm{font-size:11px;color:var(--tm);margin-top:2px;}
+/* ─── PROGRESS ─── */
+.pt-trk{background:var(--bd);border-radius:10px;overflow:hidden;}
+.pt-fl{height:100%;border-radius:10px;background:var(--teal);}
+.pt-fl.am{background:var(--gold);}
+.pt-fl.gn{background:var(--gn);}
+.pt-fl.rd{background:var(--red);}
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .12s;user-select:none;line-height:1;}
+.btn:active{transform:scale(.98);}
+.b-pri{background:var(--teal-d);color:#fff;}.b-pri:hover{background:var(--teal-dk);}
+.b-amb{background:var(--gold);color:#fff;}.b-amb:hover{background:var(--gold-d);}
+.b-grn{background:var(--gn);color:#fff;}.b-grn:hover{background:#047857;}
+.b-red{background:var(--red);color:#fff;}.b-red:hover{background:#b91c1c;}
+.b-tl{background:var(--teal-pale);color:var(--teal-d);border:1.5px solid rgba(43,184,163,.25);}.b-tl:hover{background:#d0f0ec;}
+.b-out{background:transparent;color:var(--tp);border:1.5px solid var(--bd);}.b-out:hover{background:var(--cr);border-color:var(--bds);}
+.b-gh{background:transparent;color:var(--ts);padding:6px 10px;}.b-gh:hover{background:var(--cr);color:var(--tp);}
+.b-sm{padding:5px 11px;font-size:12px;}
+.b-xs{padding:3px 9px;font-size:11px;border-radius:5px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+/* ─── BARS ─── */
+.bar-c{display:flex;align-items:flex-end;gap:3px;}
+.bar{flex:1;border-radius:3px 3px 0 0;transition:opacity .15s;}
+.bar:hover{opacity:.75;}
+.bg{background:var(--teal);}.ba{background:var(--gold);}
+/* ─── SECTION HEADER ─── */
+.sc-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;}
+.sc-ttl{font-size:19px;font-weight:800;color:var(--tp);letter-spacing:-.02em;}
+.sc-sb{font-size:12.5px;color:var(--tm);margin-top:3px;font-weight:500;}
+/* ─── FILTERS ─── */
+.fr-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.fi-wrap{display:flex;align-items:center;gap:7px;background:var(--su);border:1.5px solid var(--bd);border-radius:8px;padding:6px 12px;flex:1;max-width:280px;transition:border-color .15s;}
+.fi-wrap:focus-within{border-color:var(--teal);}
+.fi-wrap input{border:none;outline:none;background:transparent;font-family:var(--font);font-size:13px;color:var(--tp);flex:1;}
+.fi-wrap input::placeholder{color:var(--tm);}
+.fs{background:var(--su);border:1.5px solid var(--bd);border-radius:8px;padding:7px 11px;font-size:12.5px;color:var(--tp);font-family:var(--font);cursor:pointer;outline:none;transition:border-color .15s;}
+.fs:focus{border-color:var(--teal);}
+/* ─── DONUT ─── */
+.dn-v{width:68px;height:68px;border-radius:50%;background:conic-gradient(var(--teal) 0% 89%,var(--bd) 89% 100%);flex-shrink:0;position:relative;}
+.dn-h{position:absolute;top:11px;left:11px;right:11px;bottom:11px;background:var(--su);border-radius:50%;}
+.lg-i{display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:5px;}
+.lg-d{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+/* ─── TABS ─── */
+.tabs{display:flex;gap:2px;background:var(--cr);border:1.5px solid var(--bd);border-radius:8px;padding:3px;}
+.tab{padding:5px 14px;font-size:12.5px;border-radius:6px;cursor:pointer;font-weight:500;color:var(--ts);transition:all .12s;user-select:none;}
+.tab.a{background:var(--su);color:var(--tp);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+/* ─── UNIT GRID ─── */
+.ut-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px;}
+.ut{border:1.5px solid var(--bd);border-radius:8px;padding:11px;cursor:pointer;transition:all .12s;}
+.ut:hover{border-color:var(--teal);box-shadow:0 2px 8px rgba(43,184,163,.12);}
+.ut.oc{border-left:3px solid var(--teal);}
+.ut.vc{border-left:3px solid var(--tm);}
+.ut.od{border-left:3px solid var(--bd);}
+.u-num{font-size:13.5px;font-weight:700;margin-bottom:3px;}
+.u-tn{font-size:11px;color:var(--ts);}
+.u-rt{font-size:11px;font-weight:600;margin-top:3px;}
+/* ─── PROFILE HERO ─── */
+.ph{background:linear-gradient(135deg,var(--sb) 0%,var(--teal-dk) 100%);border-radius:var(--r) var(--r) 0 0;padding:24px 22px;display:flex;align-items:center;gap:16px;}
+.pa{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#FDE68A);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--sb);border:3px solid rgba(255,255,255,.25);flex-shrink:0;}
+.pn2{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.02em;}
+.pu2{font-size:12.5px;color:rgba(255,255,255,.65);margin-top:3px;}
+.ptg{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+/* ─── INSIGHTS ─── */
+.ins-c{background:var(--su);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;}
+.ins-i{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ins-t{font-size:13.5px;font-weight:700;margin-bottom:3px;}
+.ins-d{font-size:12px;color:var(--ts);line-height:1.5;}
+/* ─── WA ─── */
+.wa-layout{display:grid;grid-template-columns:290px 1fr;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;background:var(--su);box-shadow:var(--shadow);}
+.wa-list{border-right:1px solid var(--bd);overflow-y:auto;display:flex;flex-direction:column;}
+.wa-list::-webkit-scrollbar{width:4px;}
+.wa-list::-webkit-scrollbar-thumb{background:var(--bds);border-radius:10px;}
+.wa-list-hd{padding:13px 16px;border-bottom:1px solid var(--bd);font-size:13.5px;font-weight:700;flex-shrink:0;}
+.wa-thread{display:flex;align-items:center;gap:9px;padding:11px 15px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .1s;flex-shrink:0;}
+.wa-thread:hover{background:var(--cr);}
+.wa-thread.sel{background:var(--teal-pale);}
+.wa-thread-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.wa-thread-preview{font-size:11.5px;color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:175px;}
+.wa-unread{background:var(--teal);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;flex-shrink:0;}
+.wa-chat{display:flex;flex-direction:column;}
+.wa-chat-hd{padding:13px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.wa-messages{flex:1;overflow-y:auto;padding:16px;background:#EDF6F5;display:flex;flex-direction:column;gap:7px;}
+.wa-messages::-webkit-scrollbar{width:4px;}
+.wa-messages::-webkit-scrollbar-thumb{background:var(--bds);border-radius:10px;}
+.wa-out{background:#C8EDE7;border-radius:12px 12px 2px 12px;padding:9px 12px;max-width:70%;margin-left:auto;font-size:13px;line-height:1.45;color:var(--sb);}
+.wa-in{background:#fff;border:1px solid var(--bd);border-radius:12px 12px 12px 2px;padding:9px 12px;max-width:70%;font-size:13px;line-height:1.45;}
+.wa-meta{font-size:10px;color:var(--tm);margin-top:3px;text-align:right;}
+.wa-meta-l{text-align:left;}
+.wa-ai-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;background:var(--gold-pale);color:var(--gold-d);padding:2px 7px;border-radius:10px;font-weight:700;margin-bottom:4px;}
+.wa-input-row{padding:11px 15px;border-top:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.wa-input{flex:1;border:1.5px solid var(--bd);border-radius:20px;padding:8px 14px;font-size:13px;font-family:var(--font);color:var(--tp);background:var(--cr);outline:none;transition:border-color .15s;}
+.wa-input:focus{border-color:var(--teal);}
+/* ─── SETTINGS ─── */
+.stg-layout{display:grid;grid-template-columns:210px 1fr;gap:18px;}
+.stg-nav{background:var(--su);border:1px solid var(--bd);border-radius:var(--r);padding:8px;height:fit-content;box-shadow:var(--shadow);}
+.stg-nav-it{padding:9px 12px;border-radius:7px;font-size:13px;color:var(--ts);cursor:pointer;margin-bottom:2px;display:flex;align-items:center;gap:9px;font-weight:500;transition:all .12s;}
+.stg-nav-it:hover{background:var(--cr);}
+.stg-nav-it.active{background:var(--teal-pale);color:var(--teal-d);}
+.stg-sec-ttl{font-size:13.5px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--bd);}
+.stg-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bd);}
+.stg-row:last-child{border-bottom:none;}
+.stg-lbl{font-size:13.5px;font-weight:600;}
+.stg-sub{font-size:12px;color:var(--tm);margin-top:2px;}
+/* ─── TOGGLE ─── */
+.tog{width:40px;height:23px;border-radius:12px;position:relative;cursor:pointer;flex-shrink:0;transition:background .2s;}
+.tog.on{background:var(--teal);}
+.tog.off{background:var(--bds);}
+.tog-k{width:17px;height:17px;background:#fff;border-radius:50%;position:absolute;top:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.tog.on .tog-k{left:20px;}
+.tog.off .tog-k{left:3px;}
+/* ─── MODAL ─── */
+.ov{position:fixed;inset:0;background:rgba(13,31,28,.55);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(3px);}
+.modal{background:var(--su);border-radius:14px;width:580px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);border:1px solid var(--bd);}
+.modal-wide{width:700px;}
+.modal-hd{padding:20px 24px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--su);z-index:1;}
+.modal-ttl{font-size:16px;font-weight:800;color:var(--tp);}
+.modal-cls{background:none;border:none;cursor:pointer;font-size:20px;color:var(--tm);padding:2px 6px;border-radius:5px;line-height:1;transition:all .12s;font-family:var(--font);}
+.modal-cls:hover{color:var(--tp);background:var(--cr);}
+.modal-bd{padding:22px 24px;}
+.modal-ft{padding:14px 24px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--su);}
+/* ─── FORM ─── */
+.fg{margin-bottom:16px;}
+.fl{display:block;font-size:12px;font-weight:700;color:var(--ts);margin-bottom:5px;letter-spacing:.02em;text-transform:uppercase;}
+.fi2{width:100%;border:1.5px solid var(--bd);border-radius:8px;padding:9px 13px;font-size:13.5px;font-family:var(--font);color:var(--tp);background:var(--su);outline:none;transition:border-color .15s;}
+.fi2:focus{border-color:var(--teal);}
+.fi2.err{border-color:var(--red);}
+.fi2-sel{appearance:none;cursor:pointer;}
+.fe{font-size:11px;color:var(--red);margin-top:4px;font-weight:500;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+/* ─── BACK BTN ─── */
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ts);cursor:pointer;padding:5px 0;margin-bottom:16px;font-weight:600;transition:color .12s;user-select:none;}
+.back-btn:hover{color:var(--teal-d);}
+/* ─── INFO GRID ─── */
+.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.info-item{background:var(--cr);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;}
+.info-lbl{font-size:11px;color:var(--tm);font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
+.info-val{font-size:14px;font-weight:700;color:var(--tp);}
+/* ─── TIMELINE ─── */
+.tl{position:relative;padding-left:22px;}
+.tl::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:1.5px;background:var(--bd);}
+.tl-it{position:relative;padding-bottom:14px;}
+.tl-it:last-child{padding-bottom:0;}
+.tl-it::before{content:'';position:absolute;left:-19px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--teal);border:2px solid var(--su);box-shadow:0 0 0 1.5px var(--teal);}
+.tl-it.sys::before{background:var(--tm);box-shadow:0 0 0 1.5px var(--tm);}
+.tl-act{font-size:13px;color:var(--tp);line-height:1.45;font-weight:500;}
+.tl-time{font-size:11px;color:var(--tm);margin-top:2px;}
+/* ─── VENDOR ─── */
+.vc-card{background:var(--su);border:1px solid var(--bd);border-radius:var(--r);padding:18px;cursor:pointer;transition:border-color .15s;}
+.vc-card:hover{border-color:var(--teal);box-shadow:0 2px 8px rgba(43,184,163,.08);}
+.v-trade{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--teal-pale);color:var(--teal-dk);}
+/* ─── BROADCAST ─── */
+.bc-tmpl{border:1.5px solid var(--bd);border-radius:var(--r);padding:13px 14px;cursor:pointer;transition:all .12s;margin-bottom:9px;}
+.bc-tmpl:hover{border-color:var(--teal);background:var(--teal-pale);}
+.bc-tmpl.sel{border-color:var(--teal-d);background:var(--teal-pale);}
+/* ─── REPORT CARD ─── */
+.rc-card{background:var(--su);border:1px solid var(--bd);border-radius:var(--r);padding:17px 19px;display:flex;align-items:center;gap:15px;cursor:pointer;transition:border-color .12s;}
+.rc-card:hover{border-color:var(--bds);}
+/* ─── STAFF ─── */
+.st-card{background:var(--su);border:1px solid var(--bd);border-radius:var(--r);padding:17px;display:flex;align-items:center;gap:14px;transition:border-color .12s;}
+.st-card:hover{border-color:var(--bds);}
+/* ─── AI BANNER ─── */
+.ai-banner{background:linear-gradient(135deg,var(--sb) 0%,var(--teal-dk) 60%,var(--teal-d) 100%);border-radius:var(--r);padding:20px 24px;margin-bottom:18px;display:flex;align-items:center;gap:16px;}
+/* ─── EMPTY STATE ─── */
+.empty{padding:48px 20px;text-align:center;}
+.empty-ico{font-size:36px;margin-bottom:10px;}
+.empty-ttl{font-size:14px;font-weight:700;color:var(--ts);margin-bottom:5px;}
+.empty-sub{font-size:12.5px;color:var(--tm);}
+/* ─── NOTIFY TOAST ─── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--sb);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:2000;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;animation:slideUp .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes modalIn{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:scale(1);}}
+.page{animation:fadeIn .18s ease;}
+.modal{animation:modalIn .15s ease;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback} = React;
+
+
+// ═══════════════════════════════════════════════
+// SEED DATA
+// ═══════════════════════════════════════════════
+const fmtTime = () => new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+const fmtNow = () => new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+const SEED_PROPS = [
+  {id:'P-001',name:'Harmony Gardens',location:'Lekki Phase 1, Lagos',units:24,occupied:21,type:'Residential',manager:'Emeka',revenue:'₦3.9M',complaints:8,color:'#2BB8A3'},
+  {id:'P-002',name:'Westridge Estate',location:'Ikeja GRA, Lagos',units:16,occupied:15,type:'Residential',manager:'Sade',revenue:'₦2.8M',complaints:4,color:'#7C3AED'},
+  {id:'P-003',name:'Sunset Towers',location:'VI, Lagos',units:32,occupied:28,type:'Mixed-Use',manager:'Emeka',revenue:'₦5.6M',complaints:11,color:'#D4870A'},
+];
+
+const SEED_TENANTS = [
+  {id:'T-001',name:'Amara Osei',unit:'B-04',propId:'P-001',propName:'Harmony Gardens',rent:'₦2,220,000',status:'paid',phone:'+234 801 234 5678',since:'Jan 2023',complaints:3,deposit:'₦370,000',lease:'Dec 31, 2025'},
+  {id:'T-002',name:'Fatima Al-Rashid',unit:'A-11',propId:'P-002',propName:'Westridge Estate',rent:'₦2,640,000',status:'overdue',phone:'+234 802 345 6789',since:'Mar 2022',complaints:5,deposit:'₦440,000',lease:'Feb 28, 2026'},
+  {id:'T-003',name:'Kofi Mensah',unit:'C-02',propId:'P-001',propName:'Harmony Gardens',rent:'₦1,980,000',status:'paid',phone:'+233 24 567 8901',since:'Jun 2023',complaints:2,deposit:'₦330,000',lease:'May 31, 2025'},
+  {id:'T-004',name:'Ngozi Eze',unit:'A-07',propId:'P-003',propName:'Sunset Towers',rent:'₦2,400,000',status:'pending',phone:'+234 803 456 7890',since:'Sep 2023',complaints:1,deposit:'₦400,000',lease:'Aug 31, 2025'},
+  {id:'T-005',name:'David Mutua',unit:'D-01',propId:'P-003',propName:'Sunset Towers',rent:'₦2,100,000',status:'paid',phone:'+254 712 345 678',since:'Dec 2022',complaints:4,deposit:'₦350,000',lease:'Nov 30, 2025'},
+  {id:'T-006',name:'Abena Boateng',unit:'B-09',propId:'P-002',propName:'Westridge Estate',rent:'₦2,340,000',status:'pending',phone:'+233 54 678 9012',since:'Apr 2024',complaints:1,deposit:'₦390,000',lease:'Mar 31, 2026'},
+];
+
+const SEED_COMPLAINTS = [
+  {id:'CMP-001',tenantId:'T-001',tenantName:'Amara Osei',unit:'B-04',propId:'P-001',propName:'Harmony Gardens',type:'Plumbing',status:'open',priority:'high',date:'Mar 13',age:'2d',desc:'Kitchen sink has been leaking for two days. Water is pooling under the cabinet and causing damage to the flooring below.',vendorId:null,vendorName:null,
+   timeline:[{time:'Mar 13, 8:14 AM',action:'Complaint logged via WhatsApp AI Agent',sys:true},{time:'Mar 13, 8:20 AM',action:'Complaint escalated to high priority',sys:true}]},
+  {id:'CMP-002',tenantId:'T-002',tenantName:'Fatima Al-Rashid',unit:'A-11',propId:'P-002',propName:'Westridge Estate',type:'Electrical',status:'in-progress',priority:'critical',date:'Mar 12',age:'3d',desc:'Complete electrical failure in the master bedroom. No power to any sockets. Circuit breaker keeps tripping whenever power is restored.',vendorId:'V-002',vendorName:'Bright Electricals Ltd',
+   timeline:[{time:'Mar 12, 7:10 AM',action:'Complaint logged via WhatsApp AI Agent',sys:true},{time:'Mar 12, 9:00 AM',action:'Status changed to In Progress',sys:false},{time:'Mar 12, 9:05 AM',action:'Bright Electricals Ltd assigned to complaint',sys:false}]},
+  {id:'CMP-003',tenantId:'T-003',tenantName:'Kofi Mensah',unit:'C-02',propId:'P-001',propName:'Harmony Gardens',type:'AC Fault',status:'in-progress',priority:'medium',date:'Mar 11',age:'4d',desc:'AC unit not cooling below 28°C even on max setting. Room is unbearably hot. Suspect compressor issue.',vendorId:'V-003',vendorName:'CoolAir HVAC Services',
+   timeline:[{time:'Mar 11, 11:00 AM',action:'Complaint logged via WhatsApp AI Agent',sys:true},{time:'Mar 11, 2:00 PM',action:'CoolAir HVAC Services assigned',sys:false}]},
+  {id:'CMP-004',tenantId:'T-004',tenantName:'Ngozi Eze',unit:'A-07',propId:'P-003',propName:'Sunset Towers',type:'Pest Control',status:'done',priority:'low',date:'Mar 9',age:'6d',desc:'Cockroaches spotted in kitchen area near the sink. Needs chemical treatment and inspection.',vendorId:'V-004',vendorName:'FreshGuard Pest Control',
+   timeline:[{time:'Mar 9, 10:00 AM',action:'Complaint logged',sys:true},{time:'Mar 9, 1:00 PM',action:'FreshGuard Pest Control assigned',sys:false},{time:'Mar 11, 3:00 PM',action:'Status changed to Resolved',sys:false}]},
+  {id:'CMP-005',tenantId:'T-005',tenantName:'David Mutua',unit:'D-01',propId:'P-003',propName:'Sunset Towers',type:'Plumbing',status:'open',priority:'medium',date:'Mar 13',age:'1d',desc:'Bathroom tap is dripping continuously. This has been ongoing for 3 days and is affecting the water bill significantly.',vendorId:null,vendorName:null,
+   timeline:[{time:'Mar 13, 9:30 AM',action:'Complaint logged via WhatsApp AI Agent',sys:true}]},
+  {id:'CMP-006',tenantId:'T-006',tenantName:'Abena Boateng',unit:'B-09',propId:'P-002',propName:'Westridge Estate',type:'Security Door',status:'open',priority:'high',date:'Mar 12',age:'2d',desc:'Security door lock is jammed and cannot be locked from inside. This is a serious safety concern.',vendorId:null,vendorName:null,
+   timeline:[{time:'Mar 12, 6:00 PM',action:'Complaint logged via WhatsApp AI Agent',sys:true},{time:'Mar 12, 6:05 PM',action:'Auto-flagged as high priority — security issue detected',sys:true}]},
+];
+
+const SEED_VENDORS = [
+  {id:'V-001',name:'Taiwo Plumbing Works',trade:'Plumber',phone:'+234 803 111 2222',email:'taiwo@plumb.ng',propIds:['P-001','P-003'],status:'available',jobsDone:47,rating:4.7,notes:'Specialist in pipe repairs, drainage and full bathroom installations. Available Mon–Sat 7am–6pm.'},
+  {id:'V-002',name:'Bright Electricals Ltd',trade:'Electrician',phone:'+234 805 333 4444',email:'bright@elec.ng',propIds:['P-001','P-002','P-003'],status:'busy',jobsDone:61,rating:4.5,notes:'Licensed electrical contractor for installations, rewiring and fault diagnosis. NERC certified.'},
+  {id:'V-003',name:'CoolAir HVAC Services',trade:'AC Technician',phone:'+234 807 555 6666',email:'coolair@hvac.ng',propIds:['P-002'],status:'busy',jobsDone:33,rating:4.8,notes:'Specialist in all major AC brands. Installation, servicing and refrigerant recharging. Emergency call-outs available.'},
+  {id:'V-004',name:'FreshGuard Pest Control',trade:'Pest Control',phone:'+234 809 777 8888',email:'fresh@pest.ng',propIds:['P-003'],status:'available',jobsDone:28,rating:4.6,notes:'Licensed pest control with chemical and organic options. Monthly maintenance contracts available.'},
+  {id:'V-005',name:'Femi Security Solutions',trade:'Security Technician',phone:'+234 811 999 0000',email:'femi@secure.ng',propIds:['P-001','P-002'],status:'inactive',jobsDone:19,rating:4.2,notes:'CCTV installation, access control systems, security door repairs and intercom systems.'},
+  {id:'V-006',name:'ProPaint & Decor',trade:'Painter',phone:'+234 813 222 1111',email:'pro@paint.ng',propIds:['P-001','P-002','P-003'],status:'available',jobsDone:52,rating:4.4,notes:'Interior and exterior painting, wallpaper installation, waterproofing and decorative finishes.'},
+  {id:'V-007',name:'Ade Carpentry Works',trade:'Carpenter',phone:'+234 815 444 3333',email:'ade@carp.ng',propIds:['P-002','P-003'],status:'available',jobsDone:38,rating:4.6,notes:'Custom furniture, door repairs, flooring, wood finishing and general joinery.'},
+];
+
+const WA_THREADS = [
+  {id:1,tenantId:'T-002',name:'Fatima Al-Rashid',unit:'A-11',preview:'Water heater still not fixed...',time:'2m',unread:2,msgs:[
+    {out:false,text:'Good morning. The water heater in my apartment is still not working. This is the third time I am reporting this issue.',time:'9:14 AM'},
+    {out:true,ai:true,text:'Good morning Fatima. I have escalated your complaint (CMP-002) to our senior technician. He will visit today between 2–5 PM. You will receive a confirmation shortly.',time:'9:15 AM'},
+    {out:false,text:'Ok. Please make sure someone actually comes this time.',time:'9:17 AM'},
+    {out:true,ai:true,text:'Absolutely, this has been logged as high priority. You will receive an SMS when the technician is on the way.',time:'9:17 AM'},
+    {out:false,text:'Water heater still not fixed...',time:'11:42 AM'},
+  ]},
+  {id:2,tenantId:'T-003',name:'Kofi Mensah',unit:'C-02',preview:"I've sent the payment now",time:'18m',unread:0,msgs:[
+    {out:true,ai:true,text:'Hello Kofi, this is a reminder that your March rent of ₦165,000 is due by March 7. Please make payment at your earliest convenience.',time:'8:00 AM'},
+    {out:false,text:'Noted, I will transfer today',time:'10:22 AM'},
+    {out:false,text:"I've sent the payment now",time:'11:24 AM'},
+    {out:true,ai:true,text:'Thank you Kofi! We have received your payment of ₦165,000. Your receipt (TXN-8821) has been sent to your email. Have a great day!',time:'11:25 AM'},
+  ]},
+  {id:3,tenantId:'T-005',name:'David Mutua',unit:'D-01',preview:'When will the gate remote be ready?',time:'45m',unread:1,msgs:[
+    {out:false,text:'Hi, I requested a replacement gate remote 2 weeks ago. When will it be ready?',time:'10:58 AM'},
+    {out:true,ai:true,text:'Hi David! I have checked your request (REQ-014). The remotes arrived yesterday and the security team will distribute them today between 4–6 PM.',time:'11:00 AM'},
+    {out:false,text:'When will the gate remote be ready?',time:'11:03 AM'},
+  ]},
+  {id:4,tenantId:'T-004',name:'Ngozi Eze',unit:'A-07',preview:'Thank you for the quick response',time:'2h',unread:0,msgs:[
+    {out:false,text:'The pest control team did a great job yesterday. My apartment is much better now.',time:'9:30 AM'},
+    {out:true,ai:true,text:'That is wonderful to hear Ngozi! We are glad the issue has been resolved. Would you like to rate your experience?',time:'9:31 AM'},
+    {out:false,text:'Sure — 5 stars! ⭐⭐⭐⭐⭐',time:'9:33 AM'},
+    {out:false,text:'Thank you for the quick response',time:'9:35 AM'},
+  ]},
+];
+
+const BARS = [38,52,45,61,48,73,55,82,64,71,59,88];
+const MONTHS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+
+// ═══════════════════════════════════════════════
+// UTILITY COMPONENTS
+// ═══════════════════════════════════════════════
+const Bdg = ({s}) => {
+  const MAP = {
+    open:['b-open','Open'], 'in-progress':['b-in-progress','In Progress'], done:['b-done','Resolved'],
+    paid:['b-paid','Paid'], overdue:['b-overdue','Overdue'], pending:['b-pending','Pending'],
+    critical:['b-critical','Critical'], high:['b-high','High'], medium:['b-medium','Medium'], low:['b-low','Low'],
+    available:['b-available','Available'], busy:['b-busy','Busy'], inactive:['b-inactive','Inactive'],
+    sent:['b-sent','Sent'], scheduled:['b-scheduled','Scheduled'], draft:['b-draft','Draft'],
+  };
+  const [c,l] = MAP[s] || ['b-pending',s];
+  return <span className={'badge '+c}><span className="bd-dot"/>{l}</span>;
+};
+
+const Av = ({name, size=28, bg=null}) => {
+  const COLORS = ['#0E7A6A','#1A9E8A','#D4870A','#2563EB','#7C3AED','#DC2626','#059669','#0D3D36'];
+  const color = bg || COLORS[name.charCodeAt(0) % COLORS.length];
+  return (
+    <div style={{width:size,height:size,borderRadius:'50%',background:color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:size*.36,fontWeight:700,color:'#fff',flexShrink:0}}>
+      {name.split(' ').map(p=>p[0]).join('').slice(0,2)}
+    </div>
+  );
+};
+
+const Tog = ({on, onChange}) => (
+  <div className={'tog '+(on?'on':'off')} onClick={()=>onChange&&onChange(!on)}>
+    <div className="tog-k"/>
+  </div>
+);
+
+const Stars = ({v}) => {
+  const full = Math.floor(v);
+  return <span style={{color:v>=4?'var(--gold-d)':'var(--ts)',fontSize:13,fontWeight:700}}>{'★'.repeat(full)}{'☆'.repeat(5-full)} {v.toFixed(1)}</span>;
+};
+
+const BackBtn = ({onClick,label='Back'}) => (
+  <div className="back-btn" onClick={onClick}><span>←</span> {label}</div>
+);
+
+const EmptyState = ({icon='📭',title='Nothing here yet',desc='',action=null}) => (
+  <div className="empty">
+    <div className="empty-ico">{icon}</div>
+    <div className="empty-ttl">{title}</div>
+    {desc && <div className="empty-sub" style={{marginBottom:action?14:0}}>{desc}</div>}
+    {action}
+  </div>
+);
+
+const FG = ({label, error, children}) => (
+  <div className="fg">
+    {label && <label className="fl">{label}</label>}
+    {children}
+    {error && <div className="fe">⚠ {error}</div>}
+  </div>
+);
+
+const FI = ({error, ...props}) => <input className={'fi2'+(error?' err':'')} {...props}/>;
+const FSel = ({children, ...props}) => <select className="fi2 fi2-sel" {...props}>{children}</select>;
+const FTA = ({error, ...props}) => <textarea className={'fi2'+(error?' err':'')} {...props}/>;
+
+const Toast = ({msg, onDone}) => {
+  useEffect(()=>{const t=setTimeout(onDone,2800);return()=>clearTimeout(t);},[]);
+  return <div className="toast">✓ {msg}</div>;
+};
+
+const Modal = ({title, onClose, footer, wide, children}) => (
+  <div className="ov" onClick={onClose}>
+    <div className={'modal'+(wide?' modal-wide':'')} onClick={e=>e.stopPropagation()}>
+      <div className="modal-hd">
+        <div className="modal-ttl">{title}</div>
+        <button className="modal-cls" onClick={onClose}>✕</button>
+      </div>
+      <div className="modal-bd">{children}</div>
+      {footer && <div className="modal-ft">{footer}</div>}
+    </div>
+  </div>
+);
+
+// ═══════════════════════════════════════════════
+// ADD PROPERTY MODAL
+// ═══════════════════════════════════════════════
+const AddPropertyModal = ({onClose, onAdd}) => {
+  const [f,setF] = useState({name:'',location:'',type:'Residential',units:'',manager:'',revenue:''});
+  const [err,setErr] = useState({});
+  const set = (k,v) => setF(p=>({...p,[k]:v}));
+  const validate = () => {
+    const e = {};
+    if (!f.name.trim()) e.name='Property name is required';
+    if (!f.location.trim()) e.location='Location is required';
+    if (!f.units||isNaN(f.units)||parseInt(f.units)<1) e.units='Enter a valid number of units';
+    return e;
+  };
+  const submit = () => {
+    const e = validate();
+    if (Object.keys(e).length){setErr(e);return;}
+    onAdd({
+      id:'P-'+String(Date.now()).slice(-4),
+      name:f.name.trim(), location:f.location.trim(), type:f.type,
+      units:parseInt(f.units), occupied:0,
+      manager:f.manager.trim()||'Unassigned',
+      revenue:f.revenue?'₦'+Number(f.revenue.replace(/,/g,'')).toLocaleString():'₦0',
+      complaints:0, color:'#2BB8A3',
+    });
+    onClose();
+  };
+  return (
+    <Modal title="Add New Property" onClose={onClose} footer={
+      <><button className="btn b-out" onClick={onClose}>Cancel</button><button className="btn b-pri" onClick={submit}>Add Property</button></>
+    }>
+      <div className="fr2">
+        <FG label="Property Name *" error={err.name}><FI placeholder="e.g. Palm Court Estate" value={f.name} onChange={e=>set('name',e.target.value)} error={err.name}/></FG>
+        <FG label="Property Type"><FSel value={f.type} onChange={e=>set('type',e.target.value)}><option>Residential</option><option>Mixed-Use</option><option>Commercial</option></FSel></FG>
+      </div>
+      <FG label="Location / Address *" error={err.location}><FI placeholder="e.g. Lekki Phase 2, Lagos" value={f.location} onChange={e=>set('location',e.target.value)} error={err.location}/></FG>
+      <div className="fr2">
+        <FG label="Number of Units *" error={err.units}><FI type="number" min="1" placeholder="e.g. 24" value={f.units} onChange={e=>set('units',e.target.value)} error={err.units}/></FG>
+        <FG label="Assigned Manager"><FI placeholder="e.g. Emeka" value={f.manager} onChange={e=>set('manager',e.target.value)}/></FG>
+      </div>
+      <FG label="Expected Monthly Revenue (₦)"><FI placeholder="e.g. 3,500,000" value={f.revenue} onChange={e=>set('revenue',e.target.value)}/></FG>
+    </Modal>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// ADD TENANT MODAL
+// ═══════════════════════════════════════════════
+const AddTenantModal = ({onClose, onAdd, props}) => {
+  const [f,setF] = useState({name:'',phone:'',propId:props[0]?.id||'',unit:'',rent:'',deposit:'',lease:'',status:'pending'});
+  const [err,setErr] = useState({});
+  const set = (k,v) => setF(p=>({...p,[k]:v}));
+  const submit = () => {
+    const e = {};
+    if (!f.name.trim()) e.name='Required';
+    if (!f.phone.trim()) e.phone='Required';
+    if (!f.unit.trim()) e.unit='Required';
+    if (Object.keys(e).length){setErr(e);return;}
+    const prop = props.find(p=>p.id===f.propId);
+    onAdd({
+      id:'T-'+String(Date.now()).slice(-4), name:f.name.trim(), phone:f.phone.trim(),
+      propId:f.propId, propName:prop?.name||'', unit:f.unit.trim(),
+      rent:f.rent?'₦'+Number(f.rent).toLocaleString():'₦0', deposit:f.deposit?'₦'+f.deposit:'₦0',
+      lease:f.lease||'N/A', status:f.status,
+      since:new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}), complaints:0,
+    });
+    onClose();
+  };
+  return (
+    <Modal title="Add New Tenant" onClose={onClose} footer={
+      <><button className="btn b-out" onClick={onClose}>Cancel</button><button className="btn b-pri" onClick={submit}>Add Tenant</button></>
+    }>
+      <div className="fr2">
+        <FG label="Full Name *" error={err.name}><FI placeholder="e.g. Chidi Okonkwo" value={f.name} onChange={e=>set('name',e.target.value)} error={err.name}/></FG>
+        <FG label="Phone *" error={err.phone}><FI placeholder="+234 8xx xxx xxxx" value={f.phone} onChange={e=>set('phone',e.target.value)} error={err.phone}/></FG>
+      </div>
+      <div className="fr2">
+        <FG label="Property"><FSel value={f.propId} onChange={e=>set('propId',e.target.value)}>{props.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</FSel></FG>
+        <FG label="Unit *" error={err.unit}><FI placeholder="e.g. A-03" value={f.unit} onChange={e=>set('unit',e.target.value)} error={err.unit}/></FG>
+      </div>
+      <div className="fr2">
+        <FG label="Annual Service Charge (₦)"><FI placeholder="e.g. 180000" value={f.rent} onChange={e=>set('rent',e.target.value)}/></FG>
+        <FG label="Caution Deposit (₦)"><FI placeholder="e.g. 360000" value={f.deposit} onChange={e=>set('deposit',e.target.value)}/></FG>
+      </div>
+      <div className="fr2">
+        <FG label="Lease Expiry Date"><FI type="date" value={f.lease} onChange={e=>set('lease',e.target.value)}/></FG>
+        <FG label="Payment Status"><FSel value={f.status} onChange={e=>set('status',e.target.value)}><option value="paid">Paid</option><option value="pending">Pending</option><option value="overdue">Overdue</option></FSel></FG>
+      </div>
+    </Modal>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// ADD COMPLAINT MODAL
+// ═══════════════════════════════════════════════
+const AddComplaintModal = ({onClose,onAdd,tenants,props}) => {
+  const [f,setF] = useState({tenantId:tenants[0]?.id||'',type:'Plumbing',priority:'medium',desc:''});
+  const [err,setErr] = useState({});
+  const set = (k,v) => setF(p=>({...p,[k]:v}));
+  const submit = () => {
+    if (!f.desc.trim()){setErr({desc:'Please describe the issue'});return;}
+    const t = tenants.find(x=>x.id===f.tenantId);
+    const prop = props.find(p=>p.id===t?.propId);
+    onAdd({
+      id:'CMP-'+String(Date.now()).slice(-4),
+      tenantId:f.tenantId, tenantName:t?.name||'',
+      unit:t?.unit||'', propId:t?.propId||'', propName:prop?.name||'',
+      type:f.type, priority:f.priority, status:'open',
+      date:fmtNow(), age:'0d', desc:f.desc.trim(),
+      vendorId:null, vendorName:null,
+      timeline:[{time:fmtTime(),action:'Complaint logged manually',sys:false}],
+    });
+    onClose();
+  };
+  return (
+    <Modal title="Log New Complaint" onClose={onClose} footer={
+      <><button className="btn b-out" onClick={onClose}>Cancel</button><button className="btn b-pri" onClick={submit}>Log Complaint</button></>
+    }>
+      <div className="fr2">
+        <FG label="Tenant"><FSel value={f.tenantId} onChange={e=>set('tenantId',e.target.value)}>{tenants.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</FSel></FG>
+        <FG label="Issue Type"><FSel value={f.type} onChange={e=>set('type',e.target.value)}><option>Plumbing</option><option>Electrical</option><option>AC Fault</option><option>Pest Control</option><option>Security Door</option><option>Painting</option><option>Carpentry</option><option>Other</option></FSel></FG>
+      </div>
+      <FG label="Priority"><FSel value={f.priority} onChange={e=>set('priority',e.target.value)}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></FSel></FG>
+      <FG label="Description *" error={err.desc}><FTA error={err.desc} rows={4} placeholder="Describe the issue in detail..." value={f.desc} onChange={e=>set('desc',e.target.value)} style={{resize:'vertical'}}/></FG>
+    </Modal>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// ADD VENDOR MODAL
+// ═══════════════════════════════════════════════
+const AddVendorModal = ({onClose,onAdd,props}) => {
+  const [f,setF] = useState({name:'',trade:'Plumber',phone:'',email:'',notes:'',propIds:[]});
+  const [err,setErr] = useState({});
+  const set = (k,v) => setF(p=>({...p,[k]:v}));
+  const toggleProp = id => setF(p=>({...p,propIds:p.propIds.includes(id)?p.propIds.filter(x=>x!==id):[...p.propIds,id]}));
+  const submit = () => {
+    const e = {};
+    if (!f.name.trim()) e.name='Required';
+    if (!f.phone.trim()) e.phone='Required';
+    if (Object.keys(e).length){setErr(e);return;}
+    onAdd({
+      id:'V-'+String(Date.now()).slice(-4),
+      name:f.name.trim(), trade:f.trade, phone:f.phone.trim(),
+      email:f.email.trim(), notes:f.notes.trim(),
+      propIds:f.propIds, status:'available', jobsDone:0, rating:4.0,
+    });
+    onClose();
+  };
+  return (
+    <Modal title="Add New Vendor" onClose={onClose} footer={
+      <><button className="btn b-out" onClick={onClose}>Cancel</button><button className="btn b-pri" onClick={submit}>Add Vendor</button></>
+    }>
+      <div className="fr2">
+        <FG label="Name / Company *" error={err.name}><FI placeholder="e.g. Lagos Plumbing Co." value={f.name} onChange={e=>set('name',e.target.value)} error={err.name}/></FG>
+        <FG label="Trade / Specialty"><FSel value={f.trade} onChange={e=>set('trade',e.target.value)}><option>Plumber</option><option>Electrician</option><option>AC Technician</option><option>Pest Control</option><option>Security Technician</option><option>Painter</option><option>Carpenter</option><option>General Maintenance</option></FSel></FG>
+      </div>
+      <div className="fr2">
+        <FG label="Phone *" error={err.phone}><FI placeholder="+234 8xx xxx xxxx" value={f.phone} onChange={e=>set('phone',e.target.value)} error={err.phone}/></FG>
+        <FG label="Email"><FI type="email" placeholder="vendor@example.com" value={f.email} onChange={e=>set('email',e.target.value)}/></FG>
+      </div>
+      <FG label="Notes"><FTA rows={2} placeholder="Specialty, availability, certifications..." value={f.notes} onChange={e=>set('notes',e.target.value)} style={{resize:'vertical'}}/></FG>
+      <FG label="Assigned Properties">
+        {props.map(p=>(
+          <label key={p.id} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,cursor:'pointer',fontSize:13}}>
+            <div style={{width:18,height:18,borderRadius:4,border:'2px solid '+(f.propIds.includes(p.id)?'var(--teal-d)':'var(--bds)'),background:f.propIds.includes(p.id)?'var(--teal-d)':'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .12s',cursor:'pointer'}} onClick={()=>toggleProp(p.id)}>
+              {f.propIds.includes(p.id)&&<span style={{color:'#fff',fontSize:11,fontWeight:700}}>✓</span>}
+            </div>
+            <span onClick={()=>toggleProp(p.id)}>{p.name}</span>
+          </label>
+        ))}
+      </FG>
+    </Modal>
+  );
+};
+
+
+// ═══════════════════════════════════════════════
+// COMPLAINT DETAIL
+// ═══════════════════════════════════════════════
+const ComplaintDetail = ({c,vendors,onBack,onStatusChange,onAssignVendor,onViewTenant}) => {
+  const [selV,setSelV] = useState(c.vendorId||'');
+  const assigned = vendors.find(v=>v.id===c.vendorId);
+  const doAssign = () => { if(selV && selV!==c.vendorId) onAssignVendor(c.id,selV); };
+  return (
+    <div className="page">
+      <BackBtn onClick={onBack} label="Back to Complaints"/>
+      <div className="sc-hd">
+        <div>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:5}}>
+            <span style={{fontFamily:'monospace',fontSize:14,color:'var(--teal-d)',fontWeight:700}}>{c.id}</span>
+            <Bdg s={c.priority}/><Bdg s={c.status}/>
+          </div>
+          <div className="sc-ttl">{c.type} — {c.propName}</div>
+          <div className="sc-sb">Unit {c.unit} · {c.tenantName} · Reported {c.date} · {c.age} old</div>
+        </div>
+        <div style={{display:'flex',gap:8,flexShrink:0,flexWrap:'wrap'}}>
+          {c.status!=='in-progress'&&c.status!=='done'&&<button className="btn b-tl b-sm" onClick={()=>onStatusChange(c.id,'in-progress')}>Mark In Progress</button>}
+          {c.status!=='done'&&<button className="btn b-grn b-sm" onClick={()=>onStatusChange(c.id,'done')}>Mark Resolved</button>}
+          {c.status==='done'&&<button className="btn b-out b-sm" onClick={()=>onStatusChange(c.id,'open')}>Reopen</button>}
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:16}}>
+        <div style={{display:'flex',flexDirection:'column',gap:14}}>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">Issue Description</span></div>
+            <div className="card-bd">
+              <p style={{fontSize:14,lineHeight:1.65,color:'var(--tp)',marginBottom:16}}>{c.desc}</p>
+              <div className="info-grid">
+                {[['Issue Type',c.type],['Priority',c.priority.charAt(0).toUpperCase()+c.priority.slice(1)],['Property',c.propName],['Unit',c.unit]].map(([l,v])=>(
+                  <div className="info-item" key={l}><div className="info-lbl">{l}</div><div className="info-val">{v}</div></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">Activity Timeline</span></div>
+            <div className="card-bd">
+              <div className="tl">
+                {(c.timeline||[]).map((item,i)=>(
+                  <div key={i} className={'tl-it '+(item.sys?'sys':'')}>
+                    <div className="tl-act">{item.action}</div>
+                    <div className="tl-time">{item.time}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:14}}>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">Tenant</span></div>
+            <div className="card-bd">
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+                <Av name={c.tenantName} size={42}/>
+                <div><div style={{fontWeight:700,fontSize:14}}>{c.tenantName}</div><div style={{fontSize:12,color:'var(--ts)'}}>Unit {c.unit} · {c.propName}</div></div>
+              </div>
+              <button className="btn b-tl b-sm" style={{width:'100%',justifyContent:'center'}} onClick={()=>onViewTenant(c.tenantId)}>View Tenant Profile →</button>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">Vendor Assignment</span></div>
+            <div className="card-bd">
+              {assigned?(
+                <div style={{marginBottom:12,padding:'10px 12px',background:'var(--teal-pale)',borderRadius:8,border:'1px solid rgba(43,184,163,.25)'}}>
+                  <div style={{fontSize:11.5,color:'var(--teal-dk)',fontWeight:700,marginBottom:2}}>Currently Assigned</div>
+                  <div style={{fontSize:13.5,fontWeight:700}}>{assigned.name}</div>
+                  <div style={{fontSize:12,color:'var(--ts)'}}>📞 {assigned.phone}</div>
+                </div>
+              ):(
+                <div style={{marginBottom:12,padding:'10px 12px',background:'var(--cr)',borderRadius:8,border:'1px solid var(--bd)'}}>
+                  <div style={{fontSize:12.5,color:'var(--tm)',fontWeight:500}}>No vendor assigned yet</div>
+                </div>
+              )}
+              <FG label={assigned?"Reassign Vendor":"Assign Vendor"}>
+                <FSel value={selV} onChange={e=>setSelV(e.target.value)}>
+                  <option value="">— Select a vendor —</option>
+                  {vendors.filter(v=>v.status!=='inactive').map(v=>(
+                    <option key={v.id} value={v.id}>{v.name} ({v.trade}) — {v.status}</option>
+                  ))}
+                </FSel>
+              </FG>
+              <button className="btn b-pri b-sm" style={{width:'100%',justifyContent:'center'}} onClick={doAssign} disabled={!selV||selV===c.vendorId}>
+                {assigned?'Reassign Vendor':'Assign Vendor'}
+              </button>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">Update Status</span></div>
+            <div className="card-bd" style={{display:'flex',flexDirection:'column',gap:8}}>
+              {[['open','Open'],['in-progress','In Progress'],['done','Resolved']].map(([s,l])=>(
+                <button key={s} className={'btn b-sm '+(c.status===s?'b-pri':'b-out')} style={{justifyContent:'center'}} onClick={()=>onStatusChange(c.id,s)}>
+                  {c.status===s?'● ':''}{l}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PROPERTY DETAIL
+// ═══════════════════════════════════════════════
+const PropertyDetail = ({prop,tenants,complaints,onBack,navToTenant,navToComplaint}) => {
+  const pTenants = tenants.filter(t=>t.propId===prop.id);
+  const pComplaints = complaints.filter(c=>c.propId===prop.id);
+  const openC = pComplaints.filter(c=>c.status!=='done');
+  return (
+    <div className="page">
+      <BackBtn onClick={onBack} label="Back to Properties"/>
+      <div style={{background:'linear-gradient(135deg,var(--sb),var(--teal-dk))',borderRadius:'var(--r)',padding:'24px',marginBottom:18,display:'flex',alignItems:'flex-start',justifyContent:'space-between'}}>
+        <div>
+          <div style={{marginBottom:6}}>
+            <span style={{background:'rgba(255,255,255,.14)',color:'#fff',padding:'3px 10px',borderRadius:20,fontSize:11.5,fontWeight:600}}>{prop.type}</span>
+          </div>
+          <div style={{fontSize:22,fontWeight:800,color:'#fff',marginBottom:4}}>{prop.name}</div>
+          <div style={{fontSize:13,color:'rgba(255,255,255,.65)'}}>📍 {prop.location} · Manager: {prop.manager}</div>
+        </div>
+        <button className="btn b-sm" style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',color:'rgba(255,255,255,.9)'}}>Edit Property</button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:18}}>
+        {[['Total Units',prop.units,'🏢'],['Occupied',prop.occupied,'✅'],['Vacant',prop.units-prop.occupied,'🔓'],['Open Issues',openC.length,'⚠️']].map(([l,v,ic])=>(
+          <div className="mc" key={l} style={{cursor:'default'}}>
+            <div className="mc-ico" style={{background:'var(--teal-pale)'}}>{ic}</div>
+            <div className="ml">{l}</div>
+            <div className="mv" style={{fontSize:22}}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+        <div className="card">
+          <div className="card-hd"><span className="card-ttl">Tenants ({pTenants.length})</span></div>
+          {pTenants.length===0?<div className="card-bd"><EmptyState icon="👤" title="No tenants yet"/></div>:
+          <div style={{overflowX:'auto'}}>
+            <table><thead><tr><th>Tenant</th><th>Unit</th><th>Charge</th><th>Status</th><th></th></tr></thead>
+              <tbody>{pTenants.map(t=>(
+                <tr key={t.id} className="clickable" onClick={()=>navToTenant(t.id)}>
+                  <td><div style={{display:'flex',alignItems:'center',gap:8}}><Av name={t.name} size={24}/><span className="pn">{t.name}</span></div></td>
+                  <td><span style={{fontFamily:'monospace',fontWeight:700,fontSize:12}}>{t.unit}</span></td>
+                  <td style={{fontWeight:700}}>{t.rent}</td>
+                  <td><Bdg s={t.status}/></td>
+                  <td><button className="btn b-gh b-xs">View →</button></td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>}
+        </div>
+        <div className="card">
+          <div className="card-hd"><span className="card-ttl">Complaints ({pComplaints.length})</span></div>
+          {pComplaints.length===0?<div className="card-bd"><EmptyState icon="✅" title="No complaints" desc="This property is issue-free"/></div>:
+          <div style={{overflowX:'auto'}}>
+            <table><thead><tr><th>Unit</th><th>Type</th><th>Priority</th><th>Status</th><th>Age</th><th></th></tr></thead>
+              <tbody>{pComplaints.map(c=>(
+                <tr key={c.id} className="clickable" onClick={()=>navToComplaint(c.id)}>
+                  <td><span style={{fontFamily:'monospace',fontWeight:700,fontSize:13}}>{c.unit}</span></td>
+                  <td style={{fontWeight:600}}>{c.type}</td>
+                  <td><Bdg s={c.priority}/></td>
+                  <td><Bdg s={c.status}/></td>
+                  <td><span className="pt">{c.age}</span></td>
+                  <td><button className="btn b-gh b-xs">View →</button></td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>}
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-hd">
+          <span className="card-ttl">Unit Map</span>
+          <div style={{display:'flex',gap:12,fontSize:11.5,color:'var(--tm)'}}>
+            {[['var(--teal)','Occupied'],['var(--bd)','Vacant']].map(([c,l])=>(
+              <span key={l} style={{display:'flex',alignItems:'center',gap:4}}><span style={{width:8,height:8,borderRadius:2,background:c,display:'inline-block'}}/>{l}</span>
+            ))}
+          </div>
+        </div>
+        <div className="card-bd">
+          <div className="ut-g">
+            {Array.from({length:prop.units},(_,i)=>{
+              const letter = String.fromCharCode(65+Math.floor(i/6));
+              const num = String((i%6)+1).padStart(2,'0');
+              const uid = letter+'-'+num;
+              const tenant = pTenants.find(t=>t.unit===uid);
+              const st = i>=prop.occupied?'vc':'oc';
+              return (
+                <div key={uid} className={'ut '+st} onClick={()=>tenant&&navToTenant(tenant.id)}>
+                  <div className="u-num">{uid}</div>
+                  <div className="u-tn">{tenant?tenant.name.split(' ')[0]:'Vacant'}</div>
+                  <div className="u-rt" style={{color:st==='vc'?'var(--tm)':'var(--teal-d)'}}>
+                    {st==='vc'?'Vacant':tenant?.rent}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// TENANT DETAIL
+// ═══════════════════════════════════════════════
+const TenantDetail = ({tenant,complaints,onBack,navToComplaint,navToInbox}) => {
+  const tComplaints = complaints.filter(c=>c.tenantId===tenant.id);
+  return (
+    <div className="page">
+      <BackBtn onClick={onBack} label="Back to Tenants"/>
+      <div className="card" style={{marginBottom:16}}>
+        <div className="ph">
+          <div className="pa">{tenant.name.split(' ').map(p=>p[0]).join('').slice(0,2)}</div>
+          <div style={{flex:1}}>
+            <div className="pn2">{tenant.name}</div>
+            <div className="pu2">Unit {tenant.unit} · {tenant.propName}</div>
+            <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
+              <span className="ptg">Since {tenant.since}</span>
+              <span className="ptg">WhatsApp Active</span>
+              <span className="ptg">{tComplaints.length} Complaint{tComplaints.length!==1?'s':''}</span>
+              <Bdg s={tenant.status}/>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:8,flexShrink:0}}>
+            <button className="btn b-sm" style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',color:'rgba(255,255,255,.9)'}} onClick={()=>navToInbox(tenant.id)}>💬 Message</button>
+            <button className="btn b-sm b-amb">Edit Profile</button>
+          </div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',borderTop:'1px solid var(--bd)'}}>
+          {[['Service Charge',tenant.rent,false],['Lease Expires',tenant.lease,false],['Deposit',tenant.deposit,false],['Charge Status',tenant.status.charAt(0).toUpperCase()+tenant.status.slice(1),tenant.status==='paid']].map(([l,v,g])=>(
+            <div key={l} style={{padding:'13px 17px',borderRight:'1px solid var(--bd)'}}>
+              <div style={{fontSize:11,color:'var(--tm)',marginBottom:4,fontWeight:600,textTransform:'uppercase',letterSpacing:'.03em'}}>{l}</div>
+              <div style={{fontWeight:700,fontSize:14,color:g?'var(--gn)':tenant.status==='overdue'&&l==='Charge Status'?'var(--red)':'var(--tp)'}}>{v}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+        <div className="card">
+          <div className="card-hd"><span className="card-ttl">Contact Information</span></div>
+          <div className="card-bd">
+            {[['📞 Phone',tenant.phone],['🏠 Unit',tenant.unit],['🏢 Property',tenant.propName],['📅 Tenant Since',tenant.since]].map(([l,v])=>(
+              <div key={l} style={{display:'flex',justifyContent:'space-between',padding:'9px 0',borderBottom:'1px solid var(--bd)',fontSize:13}}>
+                <span style={{color:'var(--ts)',fontWeight:600}}>{l}</span>
+                <span style={{fontWeight:700}}>{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-hd"><span className="card-ttl">Complaint History ({tComplaints.length})</span></div>
+          {tComplaints.length===0?(
+            <div className="card-bd"><EmptyState icon="✅" title="No complaints" desc="This tenant has no logged complaints"/></div>
+          ):(
+            <div style={{overflowX:'auto'}}>
+              <table><thead><tr><th>ID</th><th>Type</th><th>Status</th><th>Date</th><th></th></tr></thead>
+                <tbody>{tComplaints.map(c=>(
+                  <tr key={c.id} className="clickable" onClick={()=>navToComplaint(c.id)}>
+                    <td><span style={{fontFamily:'monospace',fontSize:11.5,color:'var(--teal-d)',fontWeight:700}}>{c.id}</span></td>
+                    <td style={{fontWeight:600}}>{c.type}</td>
+                    <td><Bdg s={c.status}/></td>
+                    <td><span className="pt">{c.date}</span></td>
+                    <td><button className="btn b-gh b-xs">View →</button></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// VENDOR DETAIL
+// ═══════════════════════════════════════════════
+const VendorDetail = ({vendor,complaints,props,onBack,navToComplaint,onStatusChange}) => {
+  const jobs = complaints.filter(c=>c.vendorId===vendor.id);
+  const propNames = vendor.propIds.map(pid=>props.find(p=>p.id===pid)?.name).filter(Boolean);
+  return (
+    <div className="page">
+      <BackBtn onClick={onBack} label="Back to Vendors"/>
+      <div style={{background:'linear-gradient(135deg,var(--sb),var(--teal-dk))',borderRadius:'var(--r)',padding:'24px',marginBottom:18,display:'flex',alignItems:'center',gap:18}}>
+        <div style={{width:60,height:60,borderRadius:'50%',background:'linear-gradient(135deg,var(--gold),#FDE68A)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:800,color:'var(--sb)',border:'3px solid rgba(255,255,255,.25)',flexShrink:0}}>
+          {vendor.name.split(' ').map(p=>p[0]).join('').slice(0,2)}
+        </div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:21,fontWeight:800,color:'#fff',marginBottom:4}}>{vendor.name}</div>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <span style={{background:'rgba(255,255,255,.15)',color:'#fff',padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:600}}>{vendor.trade}</span>
+          </div>
+        </div>
+        <div style={{textAlign:'right',flexShrink:0}}>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.5)',marginBottom:3}}>Rating</div>
+          <Stars v={vendor.rating}/>
+          <div style={{fontSize:12,color:'rgba(255,255,255,.5)',marginTop:2}}>{vendor.jobsDone} jobs completed</div>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:14}}>
+        <div className="card">
+          <div className="card-hd"><span className="card-ttl">Contact & Details</span></div>
+          <div className="card-bd">
+            {[['📞 Phone',vendor.phone],['📧 Email',vendor.email||'N/A'],['🔧 Trade',vendor.trade],['🏢 Properties',propNames.join(', ')||'None']].map(([l,v])=>(
+              <div key={l} style={{display:'flex',justifyContent:'space-between',padding:'9px 0',borderBottom:'1px solid var(--bd)',fontSize:13,gap:10}}>
+                <span style={{color:'var(--ts)',fontWeight:600,flexShrink:0}}>{l}</span>
+                <span style={{fontWeight:700,textAlign:'right'}}>{v}</span>
+              </div>
+            ))}
+            {vendor.notes&&<p style={{marginTop:12,fontSize:12.5,color:'var(--ts)',lineHeight:1.55}}>{vendor.notes}</p>}
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-hd"><span className="card-ttl">Assigned Jobs ({jobs.length})</span></div>
+          {jobs.length===0?(
+            <div className="card-bd"><EmptyState icon="🔧" title="No assigned jobs" desc="No complaints are currently linked to this vendor"/></div>
+          ):(
+            <div style={{overflowX:'auto'}}>
+              <table><thead><tr><th>Unit</th><th>Type</th><th>Property</th><th>Status</th><th></th></tr></thead>
+                <tbody>{jobs.map(c=>(
+                  <tr key={c.id} className="clickable" onClick={()=>navToComplaint(c.id)}>
+                    <td><span style={{fontFamily:'monospace',fontWeight:700,fontSize:13}}>{c.unit}</span></td>
+                    <td style={{fontWeight:600}}>{c.type}</td>
+                    <td><span className="pt">{c.propName}</span></td>
+                    <td><Bdg s={c.status}/></td>
+                    <td><button className="btn b-gh b-xs">View →</button></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          )}
+          <div style={{padding:'12px 16px',borderTop:'1px solid var(--bd)',background:'var(--cr)',borderRadius:'0 0 var(--r) var(--r)'}}>
+            <div style={{fontSize:11,color:'var(--tm)',fontWeight:600,textTransform:'uppercase',letterSpacing:'.04em',marginBottom:6}}>AI Outreach Summary</div>
+            <div style={{fontSize:12.5,color:'var(--ts)',lineHeight:1.55}}>All coordination with this vendor is handled by the Caretaker AI agent via WhatsApp. The AI sends job notifications, follows up on progress, and logs completion confirmations automatically.</div>
+            <div style={{marginTop:10,padding:'8px 10px',background:'var(--su)',borderRadius:7,border:'1px solid var(--bd)',fontSize:12,color:'var(--tp)'}}>
+              <span style={{color:'var(--gold-d)',fontWeight:700}}>✦ Last AI contact:</span> {jobs.length>0?'Job '+jobs[jobs.length-1].id+' assigned and vendor notified via WhatsApp':'No recent outreach'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// ═══════════════════════════════════════════════
+// PAGE: DASHBOARD
+// ═══════════════════════════════════════════════
+const PgDash = ({props,tenants,complaints,nav,openModal,viewDetail}) => {
+  const openC = complaints.filter(c=>c.status!=='done');
+  const totalUnits = props.reduce((s,p)=>s+p.units,0);
+  return (
+    <div className="page">
+      <div className="sc-hd">
+        <div><div className="sc-ttl">Good morning, Emeka 👋</div><div className="sc-sb">Portfolio overview · Friday, 13 March 2025</div></div>
+        <div style={{display:'flex',gap:8}}>
+          <button className="btn b-out b-sm" onClick={()=>alert('Export report generated')}>⬇ Export</button>
+          <button className="btn b-pri b-sm" onClick={()=>openModal('addProp')}>+ Add Property</button>
+        </div>
+      </div>
+      <div className="mg">
+        {[['🏢','Total Units',totalUnits,'Across all properties',true,()=>nav('properties')],
+          ['👤','Active Tenants',tenants.length,'Across your portfolio',true,()=>nav('tenants')],
+          ['⚠️','Open Complaints',openC.length,openC.length>5?'↑ Needs attention':'Under control',openC.length<=5,()=>nav('complaints')],
+          ['₦','Charges Collected','₦12.3M','81% settled this year',true,()=>nav('payments')]
+        ].map(([ic,l,v,d,u,click])=>(
+          <div className="mc" key={l} onClick={click}>
+            <div className="mc-ico" style={{background:'var(--teal-pale)'}}>{ic}</div>
+            <div className="ml">{l}</div>
+            <div className="mv">{v}</div>
+            <div className={'mdl '+(u?'up':'dn')}>{d}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 310px',gap:16,marginBottom:16}}>
+        <div style={{display:'flex',flexDirection:'column',gap:14}}>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">Service Charge Collection — 2025</span>
+              <div className="tabs"><div className="tab a">Monthly</div><div className="tab">Quarterly</div></div>
+            </div>
+            <div className="card-bd">
+              <div style={{marginBottom:12}}>
+                <span style={{fontSize:24,fontWeight:800,letterSpacing:'-.03em'}}>₦12.3M</span>
+                <span style={{fontSize:12.5,color:'var(--gn)',marginLeft:8,fontWeight:700}}>↑ 14.2% vs last year</span>
+              </div>
+              <div className="bar-c" style={{height:70}}>
+                {BARS.map((h,i)=>(
+                  <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
+                    <div className={'bar '+(i===2?'ba':'bg')} style={{width:'100%',height:h+'%',opacity:i>2?.2:1}}/>
+                    <span style={{fontSize:9,color:'var(--tm)'}}>{MONTHS[i]}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:'flex',gap:10,marginTop:14}}>
+                {[['Settled','₦12.3M','var(--teal-d)'],['Outstanding','₦2.8M','var(--gold-d)'],['Overdue','₦0.9M','var(--red)']].map(([l,v,c])=>(
+                  <div key={l} style={{flex:1,padding:'10px 12px',background:'var(--cr)',borderRadius:8,border:'1px solid var(--bd)'}}>
+                    <div style={{fontSize:10.5,color:'var(--tm)',marginBottom:3,fontWeight:700,textTransform:'uppercase',letterSpacing:'.04em'}}>{l}</div>
+                    <div style={{fontWeight:800,fontSize:14.5,color:c}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">Recent Complaints</span><button className="btn b-gh b-sm" onClick={()=>nav('complaints')}>View all →</button></div>
+            <div style={{overflowX:'auto'}}>
+              <table><thead><tr><th>ID</th><th>Tenant</th><th>Type</th><th>Property</th><th>Status</th><th>Age</th></tr></thead>
+                <tbody>{complaints.slice(0,4).map(c=>(
+                  <tr key={c.id} className="clickable" onClick={()=>viewDetail('complaint',c.id)}>
+                    <td><span style={{fontFamily:'monospace',fontSize:11.5,color:'var(--teal-d)',fontWeight:700}}>{c.id}</span></td>
+                    <td><div style={{display:'flex',alignItems:'center',gap:7}}><Av name={c.tenantName} size={24}/><span className="pn">{c.tenantName}</span></div></td>
+                    <td style={{fontWeight:500}}>{c.type}</td>
+                    <td><span className="pt">{c.propName}</span></td>
+                    <td><Bdg s={c.status}/></td>
+                    <td><span className="pt">{c.age}</span></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:14}}>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">Occupancy</span></div>
+            <div className="card-bd">
+              <div style={{display:'flex',alignItems:'center',gap:13,marginBottom:14}}>
+                <div className="dn-v"><div className="dn-h"/></div>
+                <div style={{flex:1}}>
+                  {[['var(--teal)','Occupied','64 units'],['var(--bd)','Vacant','8 units']].map(([c,l,v])=>(
+                    <div className="lg-i" key={l}><div className="lg-d" style={{background:c}}/><span style={{flex:1,color:'var(--ts)',fontWeight:500}}>{l}</span><span style={{fontWeight:700,fontSize:12}}>{v}</span></div>
+                  ))}
+                </div>
+              </div>
+              {props.map(p=>(
+                <div key={p.id} style={{marginBottom:10,cursor:'pointer'}} onClick={()=>viewDetail('property',p.id)}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:3}}><span style={{fontWeight:600}}>{p.name}</span><span style={{color:'var(--tm)'}}>{p.occupied}/{p.units}</span></div>
+                  <div className="pt-trk" style={{height:5}}><div className="pt-fl" style={{width:Math.round((p.occupied/p.units)*100)+'%'}}/></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card" style={{flex:1}}>
+            <div className="card-hd"><span className="card-ttl">Live Activity</span><span style={{fontSize:11,background:'var(--gp)',color:'var(--gn)',padding:'2px 8px',borderRadius:20,fontWeight:700}}>● Live</span></div>
+            <div className="card-bd" style={{padding:'11px 15px'}}>
+              {[{cl:'#1D4ED8',ini:'FA',t:"WhatsApp from Fatima: 'Water heater still broken'",tm:'2 min ago'},
+                {cl:'var(--gold-d)',ini:'AI',t:'AI Agent logged CMP-007 and notified maintenance',tm:'3 min ago'},
+                {cl:'var(--teal-dk)',ini:'KM',t:'Kofi Mensah confirmed ₦165,000 payment',tm:'18 min ago'},
+                {cl:'var(--gold-d)',ini:'AI',t:'AI sent service charge reminders to 8 units due Jan 15',tm:'1h ago'},
+                {cl:'#7C3AED',ini:'NE',t:'Ngozi Eze rated maintenance ⭐⭐⭐⭐⭐',tm:'2h ago'},
+              ].map((a,i)=>(
+                <div className="act-it" key={i}>
+                  <div className="act-av" style={{background:a.cl}}>{a.ini}</div>
+                  <div><div className="act-tx">{a.t}</div><div className="act-tm">{a.tm}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: PROPERTIES
+// ═══════════════════════════════════════════════
+const PgProperties = ({props,tenants,complaints,subView,setSubView,openModal,crossNav}) => {
+  const [search,setSearch] = useState('');
+  const [typeF,setTypeF] = useState('All');
+  if (subView?.type==='property') {
+    const p = props.find(x=>x.id===subView.id);
+    if (p) return <PropertyDetail prop={p} tenants={tenants} complaints={complaints} onBack={()=>setSubView(null)}
+      navToTenant={id=>crossNav('tenants',id)} navToComplaint={id=>crossNav('complaints',id)}/>;
+  }
+  const filtered = props.filter(p=>{
+    const ms = p.name.toLowerCase().includes(search.toLowerCase())||p.location.toLowerCase().includes(search.toLowerCase());
+    const mt = typeF==='All'||p.type===typeF;
+    return ms&&mt;
+  });
+  return (
+    <div className="page">
+      <div className="sc-hd">
+        <div><div className="sc-ttl">Properties</div><div className="sc-sb">{props.length} properties · {props.reduce((s,p)=>s+p.units,0)} units</div></div>
+        <button className="btn b-pri b-sm" onClick={()=>openModal('addProp')}>+ Add Property</button>
+      </div>
+      <div className="fr-row">
+        <div className="fi-wrap"><span style={{color:'var(--tm)'}}>🔍</span><input placeholder="Search properties..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+        <select className="fs" value={typeF} onChange={e=>setTypeF(e.target.value)}><option value="All">All Types</option><option>Residential</option><option>Mixed-Use</option><option>Commercial</option></select>
+      </div>
+      {filtered.length===0?<EmptyState icon="🏢" title="No properties found" desc="Try adjusting your search or filters"/>:
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:13,marginBottom:18}}>
+        {filtered.map(p=>(
+          <div className="card" key={p.id} style={{cursor:'pointer',transition:'all .15s'}} onClick={()=>setSubView({type:'property',id:p.id})}>
+            <div style={{height:5,borderRadius:'10px 10px 0 0',background:p.color||'var(--teal)'}}/>
+            <div style={{padding:'15px 17px'}}>
+              <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:10}}>
+                <div><div style={{fontSize:15,fontWeight:700,marginBottom:3}}>{p.name}</div><div style={{fontSize:11.5,color:'var(--tm)'}}>📍 {p.location}</div></div>
+                <span style={{background:'var(--teal-pale)',color:'var(--teal-d)',padding:'2px 8px',borderRadius:20,fontSize:10.5,fontWeight:700,flexShrink:0,marginLeft:8}}>{p.type}</span>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:9,marginBottom:13}}>
+                {[['Units',p.occupied+'/'+p.units],['Revenue',p.revenue],['Complaints',p.complaints+' open'],['Manager',p.manager]].map(([l,v])=>(
+                  <div key={l}><div style={{fontSize:10.5,color:'var(--tm)',marginBottom:2,fontWeight:600,textTransform:'uppercase',letterSpacing:'.03em'}}>{l}</div><div style={{fontSize:13,fontWeight:700,color:l==='Complaints'&&p.complaints>8?'var(--red)':'var(--tp)'}}>{v}</div></div>
+                ))}
+              </div>
+              <div className="pt-trk" style={{height:5,marginBottom:4}}><div className="pt-fl" style={{width:Math.round((p.occupied/p.units)*100)+'%'}}/></div>
+              <div style={{fontSize:11.5,color:'var(--tm)',fontWeight:500}}>{Math.round((p.occupied/p.units)*100)}% occupancy</div>
+            </div>
+          </div>
+        ))}
+      </div>}
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: TENANTS
+// ═══════════════════════════════════════════════
+const PgTenants = ({tenants,complaints,props,subView,setSubView,openModal,crossNav,navToInbox}) => {
+  const [search,setSearch] = useState('');
+  const [propF,setPropF] = useState('All');
+  const [statusF,setStatusF] = useState('All');
+  if (subView?.type==='tenant') {
+    const t = tenants.find(x=>x.id===subView.id);
+    if (t) return <TenantDetail tenant={t} complaints={complaints} onBack={()=>setSubView(null)}
+      navToComplaint={id=>crossNav('complaints',id)} navToInbox={navToInbox}/>;
+  }
+  const filtered = tenants.filter(t=>{
+    const ms = t.name.toLowerCase().includes(search.toLowerCase())||t.unit.toLowerCase().includes(search.toLowerCase());
+    const mp = propF==='All'||t.propName===propF;
+    const ms2 = statusF==='All'||t.status===statusF;
+    return ms&&mp&&ms2;
+  });
+  return (
+    <div className="page">
+      <div className="sc-hd">
+        <div><div className="sc-ttl">Tenant Management</div><div className="sc-sb">{tenants.length} active tenants</div></div>
+        <div style={{display:'flex',gap:8}}>
+          <button className="btn b-out b-sm" onClick={()=>alert('Opening broadcast...')}>📤 Broadcast</button>
+          <button className="btn b-pri b-sm" onClick={()=>openModal('addTenant')}>+ Add Tenant</button>
+        </div>
+      </div>
+      <div className="fr-row">
+        <div className="fi-wrap"><span style={{color:'var(--tm)'}}>🔍</span><input placeholder="Search tenants or units..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+        <select className="fs" value={propF} onChange={e=>setPropF(e.target.value)}><option value="All">All Properties</option>{props.map(p=><option key={p.id}>{p.name}</option>)}</select>
+        <select className="fs" value={statusF} onChange={e=>setStatusF(e.target.value)}><option value="All">All Statuses</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="overdue">Overdue</option></select>
+      </div>
+      {filtered.length===0?<EmptyState icon="👤" title="No tenants found" desc="Try adjusting your search or filters"/>:
+      <div className="card">
+        <div style={{overflowX:'auto'}}>
+          <table><thead><tr><th>Tenant</th><th>Unit</th><th>Property</th><th>Rent</th><th>Status</th><th>Complaints</th><th>Phone</th><th></th></tr></thead>
+            <tbody>{filtered.map(t=>(
+              <tr key={t.id} className="clickable" onClick={()=>setSubView({type:'tenant',id:t.id})}>
+                <td><div style={{display:'flex',alignItems:'center',gap:9}}><Av name={t.name} size={28}/><div><div className="pn">{t.name}</div><div style={{fontSize:11,color:'var(--tm)'}}>Since {t.since}</div></div></div></td>
+                <td><span style={{fontFamily:'monospace',fontWeight:700,fontSize:12.5}}>{t.unit}</span></td>
+                <td><span className="pt">{t.propName}</span></td>
+                <td style={{fontWeight:700}}>{t.rent}</td>
+                <td><Bdg s={t.status}/></td>
+                <td><span style={{color:t.complaints>3?'var(--red)':'var(--ts)',fontSize:12.5,fontWeight:600}}>⚠ {t.complaints}</span></td>
+                <td><span className="pt">{t.phone}</span></td>
+                <td onClick={e=>e.stopPropagation()}><button className="btn b-gh b-xs" onClick={()=>setSubView({type:'tenant',id:t.id})}>View →</button></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>}
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: COMPLAINTS
+// ═══════════════════════════════════════════════
+const PgComplaints = ({complaints,vendors,tenants,props,subView,setSubView,openModal,updateStatus,assignVendor,crossNav}) => {
+  const [search,setSearch] = useState('');
+  const [propF,setPropF] = useState('All');
+  const [statusF,setStatusF] = useState('All');
+  const [priF,setPriF] = useState('All');
+  if (subView?.type==='complaint') {
+    const c = complaints.find(x=>x.id===subView.id);
+    if (c) return <ComplaintDetail c={c} vendors={vendors} onBack={()=>setSubView(null)}
+      onStatusChange={updateStatus} onAssignVendor={assignVendor} onViewTenant={id=>crossNav('tenants',id)}/>;
+  }
+  const filtered = complaints.filter(c=>{
+    const ms = c.id.toLowerCase().includes(search.toLowerCase())||c.tenantName.toLowerCase().includes(search.toLowerCase())||c.type.toLowerCase().includes(search.toLowerCase());
+    const mp = propF==='All'||c.propName===propF;
+    const ms2 = statusF==='All'||c.status===statusF;
+    const mp2 = priF==='All'||c.priority===priF;
+    return ms&&mp&&ms2&&mp2;
+  });
+  const counts = {critical:complaints.filter(c=>c.priority==='critical').length,open:complaints.filter(c=>c.status==='open').length,progress:complaints.filter(c=>c.status==='in-progress').length,done:complaints.filter(c=>c.status==='done').length};
+  return (
+    <div className="page">
+      <div className="sc-hd">
+        <div><div className="sc-ttl">Complaint Management</div><div className="sc-sb">{complaints.filter(c=>c.status!=='done').length} active complaints</div></div>
+        <button className="btn b-pri b-sm" onClick={()=>openModal('addComplaint')}>+ Log Complaint</button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+        {[['🔴','Critical',counts.critical,'var(--red)'],['🟡','Open',counts.open,'var(--gold-d)'],['🔵','In Progress',counts.progress,'var(--bl)'],['✅','Resolved',counts.done,'var(--teal-d)']].map(([ic,l,v,c])=>(
+          <div className="mc" key={l} style={{cursor:'default'}}>
+            <div className="mc-ico" style={{background:'var(--cr)',fontSize:18}}>{ic}</div>
+            <div className="ml">{l}</div>
+            <div className="mv" style={{fontSize:22,color:c}}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <div className="fr-row">
+        <div className="fi-wrap"><span style={{color:'var(--tm)'}}>🔍</span><input placeholder="Search ID, tenant, type..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+        <select className="fs" value={propF} onChange={e=>setPropF(e.target.value)}><option value="All">All Properties</option>{props.map(p=><option key={p.id}>{p.name}</option>)}</select>
+        <select className="fs" value={statusF} onChange={e=>setStatusF(e.target.value)}><option value="All">All Status</option><option value="open">Open</option><option value="in-progress">In Progress</option><option value="done">Resolved</option></select>
+        <select className="fs" value={priF} onChange={e=>setPriF(e.target.value)}><option value="All">All Priority</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+        <button className="btn b-out b-sm" style={{marginLeft:'auto'}} onClick={()=>alert('Exporting...')}>⬇ Export</button>
+      </div>
+      {filtered.length===0?<EmptyState icon="✅" title="No complaints found" desc="Try adjusting your filters"/>:
+      <div className="card">
+        <div style={{overflowX:'auto'}}>
+          <table><thead><tr><th>ID</th><th>Tenant</th><th>Unit</th><th>Property</th><th>Type</th><th>Priority</th><th>Status</th><th>Vendor</th><th>Age</th><th></th></tr></thead>
+            <tbody>{filtered.map(c=>(
+              <tr key={c.id} className="clickable" onClick={()=>setSubView({type:'complaint',id:c.id})}>
+                <td><span style={{fontFamily:'monospace',fontSize:11.5,color:'var(--teal-d)',fontWeight:700}}>{c.id}</span></td>
+                <td><div style={{display:'flex',alignItems:'center',gap:7}}><Av name={c.tenantName} size={24}/><span className="pn">{c.tenantName}</span></div></td>
+                <td><span style={{fontFamily:'monospace',fontWeight:700,fontSize:12}}>{c.unit}</span></td>
+                <td><span className="pt">{c.propName}</span></td>
+                <td style={{fontWeight:500}}>{c.type}</td>
+                <td><Bdg s={c.priority}/></td>
+                <td><Bdg s={c.status}/></td>
+                <td><span className="pt" style={{fontSize:12}}>{c.vendorName||'—'}</span></td>
+                <td><span className="pt">{c.age}</span></td>
+                <td onClick={e=>e.stopPropagation()}><button className="btn b-gh b-xs" onClick={()=>setSubView({type:'complaint',id:c.id})}>View →</button></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>}
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: VENDORS
+// ═══════════════════════════════════════════════
+const PgVendors = ({vendors,complaints,props,subView,setSubView,openModal,crossNav}) => {
+  const [search,setSearch] = useState('');
+  const [tradeF,setTradeF] = useState('All');
+  if (subView?.type==='vendor') {
+    const v = vendors.find(x=>x.id===subView.id);
+    if (v) return <VendorDetail vendor={v} complaints={complaints} props={props} onBack={()=>setSubView(null)} navToComplaint={id=>crossNav('complaints',id)}/>;
+  }
+  const trades = [...new Set(vendors.map(v=>v.trade))];
+  const filtered = vendors.filter(v=>{
+    const ms = v.name.toLowerCase().includes(search.toLowerCase())||v.trade.toLowerCase().includes(search.toLowerCase());
+    const mt = tradeF==='All'||v.trade===tradeF;
+    return ms&&mt;
+  });
+  return (
+    <div className="page">
+      <div className="sc-hd">
+        <div><div className="sc-ttl">Vendors</div><div className="sc-sb">{vendors.length} service providers across your portfolio</div></div>
+        <button className="btn b-pri b-sm" onClick={()=>openModal('addVendor')}>+ Add Vendor</button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+        {[['🔧','Total Vendors',vendors.length,'var(--tp)'],
+          ['🏢','Properties Covered',[...new Set(vendors.flatMap(v=>v.propIds))].length,'var(--teal-d)'],
+          ['✅','Completed Jobs',vendors.reduce((s,v)=>s+v.jobsDone,0),'var(--gn)'],
+          ['⭐','Avg Rating',(vendors.reduce((s,v)=>s+v.rating,0)/vendors.length).toFixed(1),'var(--gold-d)']
+        ].map(([ic,l,v,c])=>(
+          <div className="mc" key={l} style={{cursor:'default'}}>
+            <div className="mc-ico" style={{background:'var(--teal-pale)',fontSize:16}}>{ic}</div>
+            <div className="ml">{l}</div>
+            <div className="mv" style={{fontSize:22,color:c}}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <div className="fr-row">
+        <div className="fi-wrap"><span style={{color:'var(--tm)'}}>🔍</span><input placeholder="Search vendors or trade..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+        <select className="fs" value={tradeF} onChange={e=>setTradeF(e.target.value)}><option value="All">All Trades</option>{trades.map(t=><option key={t}>{t}</option>)}</select>
+
+      </div>
+      {filtered.length===0?<EmptyState icon="🔧" title="No vendors found" desc="Add a vendor or adjust your filters" action={<button className="btn b-pri b-sm" onClick={()=>openModal('addVendor')}>+ Add Vendor</button>}/>:
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:13}}>
+        {filtered.map(v=>{
+          const jobs = complaints.filter(c=>c.vendorId===v.id);
+          const propNames = v.propIds.map(pid=>props.find(p=>p.id===pid)?.name?.split(' ')[0]).filter(Boolean);
+          return (
+            <div className="vc-card" key={v.id} onClick={()=>setSubView({type:'vendor',id:v.id})}>
+              <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:12}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <Av name={v.name} size={42}/>
+                  <div><div style={{fontWeight:700,fontSize:14,marginBottom:4}}>{v.name}</div><span className="v-trade">{v.trade}</span></div>
+                </div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:9}}>
+                <Stars v={v.rating}/>
+                <span style={{fontSize:12,color:'var(--ts)',fontWeight:600}}>{v.jobsDone} jobs</span>
+              </div>
+              <div style={{fontSize:12.5,color:'var(--ts)',marginBottom:8}}>📞 {v.phone}</div>
+              {propNames.length>0&&<div style={{display:'flex',gap:5,flexWrap:'wrap',marginBottom:jobs.length>0?8:0}}>
+                {propNames.map(n=><span key={n} style={{background:'var(--cr)',border:'1px solid var(--bd)',borderRadius:20,padding:'2px 8px',fontSize:11,color:'var(--ts)',fontWeight:500}}>{n}</span>)}
+              </div>}
+              {jobs.length>0&&<div style={{padding:'5px 10px',background:'var(--bp)',borderRadius:7,fontSize:12,color:'#1D4ED8',fontWeight:600,marginTop:2}}>{jobs.length} active job{jobs.length!==1?'s':''}</div>}
+            </div>
+          );
+        })}
+      </div>}
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: PAYMENTS
+// ═══════════════════════════════════════════════
+const PgPayments = ({props,openModal,showToast}) => {
+  const [propF,setPropF] = useState('All');
+  const [statusF,setStatusF] = useState('All');
+  const ALL_PAYMENTS = [
+    {n:'Kofi Mensah',u:'C-02',p:'Harmony Gardens',a:'₦1,980,000',m:'Bank Transfer',d:'Jan 10',s:'paid',r:'TXN-8821'},
+    {n:'David Mutua',u:'D-01',p:'Sunset Towers',a:'₦2,100,000',m:'Mobile Money',d:'Jan 9',s:'paid',r:'TXN-8819'},
+    {n:'Ngozi Eze',u:'A-07',p:'Sunset Towers',a:'₦2,400,000',m:'—',d:'—',s:'pending',r:'—'},
+    {n:'Fatima Al-Rashid',u:'A-11',p:'Westridge Estate',a:'₦2,640,000',m:'—',d:'—',s:'overdue',r:'—'},
+    {n:'Amara Osei',u:'B-04',p:'Harmony Gardens',a:'₦2,220,000',m:'Bank Transfer',d:'Jan 8',s:'paid',r:'TXN-8803'},
+    {n:'Abena Boateng',u:'B-09',p:'Westridge Estate',a:'₦2,340,000',m:'—',d:'—',s:'pending',r:'—'},
+  ];
+  const filtered = ALL_PAYMENTS.filter(r=>(propF==='All'||r.p===propF)&&(statusF==='All'||r.s===statusF));
+  return (
+    <div className="page">
+      <div className="sc-hd"><div><div className="sc-ttl">Service Charges</div><div className="sc-sb">2025 annual cycle · FY2025</div></div>
+        <div style={{display:'flex',gap:8}}>
+          <button className="btn b-out b-sm" onClick={()=>showToast('Service charge reminders sent to 2 overdue units')}>📤 Send Reminders</button>
+          <button className="btn b-pri b-sm" onClick={()=>alert('Record payment modal')}>+ Record Payment</button>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+        {[['Expected (2025)','₦182M','72 units · annual','var(--tp)'],['Settled','₦147M','81% of portfolio','var(--teal-d)'],['Outstanding','₦25M','Awaiting settlement','var(--gold-d)'],['Overdue','₦10M','2 units overdue','var(--red)']].map(m=>(
+
+          <div className="mc" key={m[0]} style={{cursor:'default'}}><div className="ml">{m[0]}</div><div style={{fontWeight:800,fontSize:22,color:m[3],letterSpacing:'-.03em'}}>{m[1]}</div><div style={{fontSize:11.5,color:'var(--tm)',marginTop:3,fontWeight:500}}>{m[2]}</div></div>
+        ))}
+      </div>
+      <div className="card" style={{marginBottom:14}}>
+        <div className="card-bd" style={{padding:'13px 17px'}}>
+          <div style={{display:'flex',justifyContent:'space-between',marginBottom:7}}><span style={{fontSize:13,fontWeight:700}}>2025 Collection Progress</span><span style={{fontSize:13,color:'var(--teal-d)',fontWeight:700}}>81% · ₦12.3M / ₦15.1M</span></div>
+          <div className="pt-trk" style={{height:8}}><div className="pt-fl" style={{width:'81%'}}/></div>
+          <div style={{display:'flex',gap:16,marginTop:8}}>{[['🟢 Settled','54'],['🟡 Pending','8'],['🔴 Overdue','2']].map(([l,v])=><span key={l} style={{fontSize:12,color:'var(--tm)',fontWeight:500}}>{l} · {v} units</span>)}</div>
+        </div>
+      </div>
+      <div className="fr-row">
+        <select className="fs" value={propF} onChange={e=>setPropF(e.target.value)}><option value="All">All Properties</option>{props.map(p=><option key={p.id}>{p.name}</option>)}</select>
+        <select className="fs" value={statusF} onChange={e=>setStatusF(e.target.value)}><option value="All">All Statuses</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="overdue">Overdue</option></select>
+        <button className="btn b-out b-sm" style={{marginLeft:'auto'}} onClick={()=>showToast('CSV export ready — check your downloads')}>⬇ Export CSV</button>
+      </div>
+      <div className="card">
+        <div style={{overflowX:'auto'}}>
+          <table><thead><tr><th>Tenant</th><th>Unit</th><th>Property</th><th>Charge</th><th>Method</th><th>Date</th><th>Status</th><th>Reference</th><th></th></tr></thead>
+            <tbody>{filtered.map((r,i)=>(
+              <tr key={i}>
+                <td><div style={{display:'flex',alignItems:'center',gap:7}}><Av name={r.n} size={26}/><span className="pn">{r.n}</span></div></td>
+                <td><span style={{fontFamily:'monospace',fontWeight:700,fontSize:12}}>{r.u}</span></td>
+                <td><span className="pt">{r.p}</span></td>
+                <td style={{fontWeight:700}}>{r.a}</td>
+                <td><span className="pt">{r.m}</span></td>
+                <td><span className="pt">{r.d}</span></td>
+                <td><Bdg s={r.s}/></td>
+                <td><span style={{fontFamily:'monospace',fontSize:11,color:'var(--tm)'}}>{r.r}</span></td>
+                <td><button className="btn b-gh b-xs" onClick={()=>showToast('Opening payment record '+r.r)}>View</button></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: INVOICES
+// ═══════════════════════════════════════════════
+const PgInvoices = ({showToast=()=>{}}) => {
+  const [statusF,setStatusF] = useState('All');
+  const INV = [
+    {inv:'INV-0047',n:'Kofi Mensah',p:'Harmony Gardens',u:'C-02',desc:'Annual Service Charge 2025',a:'₦1,980,000',issued:'Mar 1',due:'Mar 7',s:'paid'},
+    {inv:'INV-0046',n:'David Mutua',p:'Sunset Towers',u:'D-01',desc:'Annual Service Charge 2025',a:'₦2,100,000',issued:'Mar 1',due:'Mar 7',s:'paid'},
+    {inv:'INV-0045',n:'Amara Osei',p:'Harmony Gardens',u:'B-04',desc:'Annual Service Charge 2025',a:'₦2,220,000',issued:'Mar 1',due:'Mar 7',s:'paid'},
+    {inv:'INV-0044',n:'Ngozi Eze',p:'Sunset Towers',u:'A-07',desc:'Annual Service Charge 2025',a:'₦2,400,000',issued:'Mar 1',due:'Mar 7',s:'pending'},
+    {inv:'INV-0043',n:'Fatima Al-Rashid',p:'Westridge Estate',u:'A-11',desc:'Annual Service Charge 2025 + Late Fee',a:'₦2,904,000',issued:'Mar 1',due:'Mar 7',s:'overdue'},
+    {inv:'INV-0042',n:'Abena Boateng',p:'Westridge Estate',u:'B-09',desc:'Annual Service Charge 2025',a:'₦2,340,000',issued:'Mar 1',due:'Mar 7',s:'pending'},
+  ];
+  const filtered = INV.filter(r=>statusF==='All'||r.s===statusF);
+  return (
+    <div className="page">
+      <div className="sc-hd"><div><div className="sc-ttl">Invoices</div><div className="sc-sb">Annual service charge invoices · FY 2025</div></div>
+        <div style={{display:'flex',gap:8}}><button className="btn b-out b-sm" onClick={()=>showToast('All invoices exported')}>⬇ Export All</button><button className="btn b-pri b-sm" onClick={()=>alert('New invoice modal')}>+ New Invoice</button></div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+        {[['Total Issued','47','FY 2025','var(--tp)'],['Settled','38','₦85M','var(--teal-d)'],['Pending','6','₦14.4M','var(--gold-d)'],['Overdue','3','₦7.7M','var(--red)']].map(m=>(
+          <div className="mc" key={m[0]} style={{cursor:'default'}}><div className="ml">{m[0]}</div><div style={{fontWeight:800,fontSize:22,color:m[3],letterSpacing:'-.03em'}}>{m[1]}</div><div style={{fontSize:11.5,color:'var(--tm)',marginTop:3}}>{m[2]}</div></div>
+        ))}
+      </div>
+      <div className="fr-row">
+        <select className="fs" value={statusF} onChange={e=>setStatusF(e.target.value)}><option value="All">All Status</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="overdue">Overdue</option></select>
+        <select className="fs"><option>FY 2025</option><option>FY 2024</option></select>
+        <button className="btn b-out b-sm" style={{marginLeft:'auto'}} onClick={()=>alert('Exporting...')}>⬇ Export</button>
+      </div>
+      <div className="card">
+        <div style={{overflowX:'auto'}}>
+          <table><thead><tr><th>Invoice #</th><th>Tenant</th><th>Property / Unit</th><th>Description</th><th>Amount</th><th>Issued</th><th>Due</th><th>Status</th><th></th></tr></thead>
+            <tbody>{filtered.map((r,i)=>(
+              <tr key={i}>
+                <td><span style={{fontFamily:'monospace',fontSize:11.5,color:'var(--teal-d)',fontWeight:700}}>{r.inv}</span></td>
+                <td><div style={{display:'flex',alignItems:'center',gap:7}}><Av name={r.n} size={24}/><span className="pn">{r.n}</span></div></td>
+                <td><span className="pt">{r.p}</span><span style={{fontFamily:'monospace',fontSize:11,color:'var(--tm)',marginLeft:6}}>{r.u}</span></td>
+                <td><span className="pt">{r.desc}</span></td>
+                <td style={{fontWeight:700}}>{r.a}</td>
+                <td><span className="pt">{r.issued}</span></td>
+                <td><span className="pt">{r.due}</span></td>
+                <td><Bdg s={r.s}/></td>
+                <td><div style={{display:'flex',gap:4}}>
+                  <button className="btn b-gh b-xs" onClick={()=>showToast('Generating PDF: '+r.inv)}>PDF</button>
+                  <button className="btn b-gh b-xs" onClick={()=>showToast('Opening invoice '+r.inv)}>View</button>
+                </div></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// ═══════════════════════════════════════════════
+// PAGE: INBOX
+// ═══════════════════════════════════════════════
+const PgInbox = ({threads, setThreads, initialSel=0}) => {
+  const [sel,setSel] = useState(initialSel);
+  const [msg,setMsg] = useState('');
+  const msgEnd = useRef(null);
+  const thread = threads[sel];
+  useEffect(()=>{msgEnd.current?.scrollIntoView({behavior:'smooth'});},[sel,threads]);
+  const send = () => {
+    if (!msg.trim()) return;
+    setThreads(ts=>ts.map((t,i)=>i===sel?{...t,msgs:[...t.msgs,{out:true,ai:false,text:msg,time:fmtTime()}],preview:msg,unread:0}:t));
+    setMsg('');
+  };
+  return (
+    <div className="page" style={{height:'calc(100vh - 56px - 44px - 48px)'}}>
+      <div className="sc-hd" style={{marginBottom:12}}>
+        <div><div className="sc-ttl">WhatsApp Inbox</div><div className="sc-sb">AI-managed tenant conversations</div></div>
+        <span style={{display:'flex',alignItems:'center',gap:6,fontSize:12.5,background:'var(--teal-pale)',color:'var(--teal-d)',padding:'5px 12px',borderRadius:20,fontWeight:700}}>● AI Agent Active</span>
+      </div>
+      <div className="wa-layout" style={{height:'calc(100% - 60px)'}}>
+        <div className="wa-list">
+          <div className="wa-list-hd">Conversations</div>
+          {threads.map((t,i)=>(
+            <div key={t.id} className={'wa-thread '+(sel===i?'sel':'')} onClick={()=>{setSel(i);setThreads(ts=>ts.map((x,j)=>j===i?{...x,unread:0}:x));}}>
+              <Av name={t.name} size={36}/>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <div className="wa-thread-name">{t.name}</div>
+                  <div style={{fontSize:10.5,color:'var(--tm)',flexShrink:0}}>{t.time}</div>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <div className="wa-thread-preview">{t.preview}</div>
+                  {t.unread>0&&<span className="wa-unread">{t.unread}</span>}
+                </div>
+                <div style={{fontSize:10.5,color:'var(--tm)',marginTop:2}}>Unit {t.unit}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="wa-chat">
+          <div className="wa-chat-hd">
+            <Av name={thread.name} size={36}/>
+            <div><div style={{fontWeight:700,fontSize:14}}>{thread.name}</div><div style={{fontSize:12,color:'var(--teal)',fontWeight:600}}>● Online · Unit {thread.unit}</div></div>
+            <div style={{marginLeft:'auto',display:'flex',gap:8}}>
+              <button className="btn b-out b-sm" onClick={()=>showToast('Opening tenant profile')}>👤 Profile</button>
+              <button className="btn b-pri b-sm" onClick={()=>showToast('Takeover mode enabled — AI responses paused for this conversation')}>Takeover</button>
+            </div>
+          </div>
+          <div className="wa-messages">
+            {thread.msgs.map((m,i)=>(
+              <div key={i} style={{display:'flex',flexDirection:'column',alignItems:m.out?'flex-end':'flex-start'}}>
+                {m.ai&&<div className="wa-ai-tag">✦ AI Agent</div>}
+                <div className={m.out?'wa-out':'wa-in'}>{m.text}</div>
+                <div className={'wa-meta '+(m.out?'':'wa-meta-l')}>{m.time}</div>
+              </div>
+            ))}
+            <div ref={msgEnd}/>
+          </div>
+          <div className="wa-input-row">
+            <input className="wa-input" placeholder="Type a message..." value={msg} onChange={e=>setMsg(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/>
+            <button className="btn b-pri b-sm" onClick={send}>Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: BROADCAST
+// ═══════════════════════════════════════════════
+const PgBroadcast = () => {
+  const [tmpl,setTmpl] = useState(0);
+  const [aud,setAud] = useState([]);
+  const [msgText,setMsgText] = useState('');
+  const [sent,setSent] = useState(false);
+  const toggleAud = a=>setAud(s=>s.includes(a)?s.filter(x=>x!==a):[...s,a]);
+  const TEMPLATES = [
+    {name:'Service Charge Reminder',text:'Hello [Name], your annual service charge of [Amount] for FY [Year] is due on [Date]. Please make payment via bank transfer to the account provided.'},
+    {name:'Maintenance Notice',text:'Dear [Name], we will be carrying out scheduled maintenance on [Date] between [Time]. Please be aware that access may be limited.'},
+    {name:'General Announcement',text:'Dear tenants of [Property], we have an important update regarding [Topic]. Please read this message carefully.'},
+    {name:'Lease Renewal Reminder',text:'Hello [Name], your lease for Unit [Unit] expires on [Date]. Please contact us to discuss renewal options.'},
+  ];
+  const sendNow = () => {
+    if (!aud.length){alert('Please select an audience first.');return;}
+    setSent(true);setTimeout(()=>setSent(false),3000);
+  };
+  return (
+    <div className="page">
+      <div className="sc-hd"><div><div className="sc-ttl">Broadcast Messaging</div><div className="sc-sb">Send WhatsApp messages to groups of tenants</div></div></div>
+      {sent&&<div style={{background:'var(--gp)',border:'1px solid rgba(5,150,105,.25)',borderRadius:9,padding:'12px 16px',marginBottom:16,color:'#065F46',fontWeight:700,fontSize:13}}>✅ Message queued — sending to {aud.join(', ')}</div>}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+        <div>
+          <div className="card" style={{marginBottom:14}}>
+            <div className="card-hd"><span className="card-ttl">1 — Select Template</span></div>
+            <div className="card-bd" style={{padding:'12px 15px'}}>
+              {TEMPLATES.map((t,i)=>(
+                <div key={i} className={'bc-tmpl '+(tmpl===i?'sel':'')} onClick={()=>{setTmpl(i);setMsgText(t.text);}}>
+                  <div style={{fontSize:13,fontWeight:700,marginBottom:3}}>{tmpl===i?'✓ ':''}{t.name}</div>
+                  <div style={{fontSize:12,color:'var(--ts)'}}>{t.text.slice(0,72)}...</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">2 — Compose Message</span></div>
+            <div className="card-bd">
+              <textarea style={{width:'100%',border:'1.5px solid var(--bd)',borderRadius:8,padding:'10px 12px',fontSize:13,fontFamily:'var(--font)',color:'var(--tp)',resize:'vertical',minHeight:110,outline:'none',transition:'border-color .15s'}} value={msgText||TEMPLATES[tmpl].text} onChange={e=>setMsgText(e.target.value)} onFocus={e=>e.target.style.borderColor='var(--teal)'} onBlur={e=>e.target.style.borderColor='var(--bd)'}/>
+              <div style={{display:'flex',gap:6,marginTop:9,flexWrap:'wrap'}}>
+                {['[Name]','[Amount]','[Date]','[Unit]','[Property]'].map(tag=>(
+                  <span key={tag} style={{background:'var(--gold-pale)',color:'var(--gold-d)',padding:'2px 8px',borderRadius:20,fontSize:11.5,fontWeight:700,cursor:'pointer'}} onClick={()=>setMsgText(m=>(m||TEMPLATES[tmpl].text)+' '+tag)}>{tag}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className="card" style={{marginBottom:14}}>
+            <div className="card-hd"><span className="card-ttl">3 — Select Audience</span><span style={{fontSize:12,color:'var(--tm)',fontWeight:500}}>{aud.length} selected</span></div>
+            <div className="card-bd">
+              {[['All Tenants','72 tenants across all properties'],['Overdue Tenants','2 tenants with overdue rent'],['Harmony Gardens','21 tenants'],['Westridge Estate','15 tenants'],['Sunset Towers','28 tenants'],['Lease Expiring Soon','3 tenants expiring in 60 days']].map(([l,sub])=>(
+                <div key={l} onClick={()=>toggleAud(l)} style={{display:'flex',alignItems:'center',gap:10,padding:'9px 0',borderBottom:'1px solid var(--bd)',cursor:'pointer'}}>
+                  <div style={{width:18,height:18,borderRadius:4,border:'2px solid '+(aud.includes(l)?'var(--teal-d)':'var(--bds)'),background:aud.includes(l)?'var(--teal-d)':'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .12s'}}>
+                    {aud.includes(l)&&<span style={{color:'#fff',fontSize:11,fontWeight:800}}>✓</span>}
+                  </div>
+                  <div><div style={{fontSize:13.5,fontWeight:600}}>{l}</div><div style={{fontSize:12,color:'var(--tm)'}}>{sub}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-hd"><span className="card-ttl">4 — Schedule & Send</span></div>
+            <div className="card-bd">
+              <div className="fr2" style={{marginBottom:13}}>
+                <FG label="Send Date"><input type="date" className="fi2" defaultValue="2025-03-15"/></FG>
+                <FG label="Send Time"><input type="time" className="fi2" defaultValue="09:00"/></FG>
+              </div>
+              <div style={{background:aud.length?'var(--teal-pale)':'var(--cr)',border:'1px solid '+(aud.length?'rgba(43,184,163,.3)':'var(--bd)'),borderRadius:8,padding:'10px 13px',marginBottom:13}}>
+                <div style={{fontSize:13,color:aud.length?'var(--teal-dk)':'var(--tm)',fontWeight:700}}>{aud.length?'Ready to send':'Select an audience above'}</div>
+                {aud.length>0&&<div style={{fontSize:12,color:'var(--teal-d)',marginTop:2}}>{aud.join(', ')} · {TEMPLATES[tmpl].name}</div>}
+              </div>
+              <div style={{display:'flex',gap:8}}>
+                <button className="btn b-out" style={{flex:1}} onClick={()=>showToast('Draft saved')}>Save Draft</button>
+                <button className="btn b-grn" style={{flex:1}} onClick={sendNow}>📤 Send Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: AI INSIGHTS
+// ═══════════════════════════════════════════════
+const PgInsights = ({complaints,tenants,props}) => {
+  const issueMap = complaints.reduce((m,c)=>{m[c.type]=(m[c.type]||0)+1;return m;},{});
+  const sorted = Object.entries(issueMap).sort((a,b)=>b[1]-a[1]);
+  const max = sorted[0]?.[1]||1;
+  return (
+    <div className="page">
+      <div className="sc-hd"><div><div className="sc-ttl">AI Insights</div><div className="sc-sb">Powered by Caretaker AI · Updated 5 min ago</div></div>
+        <button className="btn b-out b-sm" onClick={()=>alert('Refreshing AI analysis...')}>↻ Refresh</button>
+      </div>
+      <div className="ai-banner">
+        <div style={{fontSize:26}}>🤖</div>
+        <div>
+          <div style={{fontSize:15,fontWeight:800,color:'#fff',marginBottom:4}}>Portfolio Health Score: 74/100</div>
+          <div style={{fontSize:13,color:'rgba(255,255,255,.72)',lineHeight:1.55}}>Portfolio performing above regional average. Plumbing trending up at Sunset Towers — proactive audit recommended. 2 tenants flagged as high-churn risk.</div>
+        </div>
+        <div style={{marginLeft:'auto',flexShrink:0}}>
+          <div style={{width:62,height:62,borderRadius:'50%',background:'conic-gradient(var(--gold) 0% 74%, rgba(255,255,255,.12) 74% 100%)',position:'relative'}}>
+            <div style={{position:'absolute',inset:8,background:'var(--sb)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <span style={{fontSize:15,fontWeight:800,color:'#fff'}}>74</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:13,marginBottom:14}}>
+        <div className="ins-c">
+          <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:12}}>
+            <div className="ins-i" style={{background:'var(--gold-pale)'}}>🔧</div>
+            <div><div className="ins-t">Top Maintenance Issues</div><div className="ins-d">Most frequent complaint types this month</div></div>
+          </div>
+          {sorted.slice(0,5).map(([t,v])=>(
+            <div key={t} style={{marginBottom:9}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:3}}><span style={{fontWeight:600}}>{t}</span><span style={{color:'var(--tm)',fontWeight:500}}>{v} report{v!==1?'s':''}</span></div>
+              <div className="pt-trk" style={{height:5}}><div className="pt-fl am" style={{width:Math.round((v/max)*100)+'%'}}/></div>
+            </div>
+          ))}
+        </div>
+        <div className="ins-c">
+          <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:12}}>
+            <div className="ins-i" style={{background:'var(--rp)'}}>🏢</div>
+            <div><div className="ins-t">High-Complaint Properties</div><div className="ins-d">Properties generating most maintenance requests</div></div>
+          </div>
+          {[...props].sort((a,b)=>b.complaints-a.complaints).map(p=>(
+            <div key={p.id} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 0',borderBottom:'1px solid var(--bd)'}}>
+              <div style={{width:32,height:32,background:'var(--teal-pale)',border:'1px solid var(--bd)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>🏘</div>
+              <div style={{flex:1}}><div style={{fontSize:13.5,fontWeight:700}}>{p.name}</div><div style={{fontSize:11.5,color:'var(--tm)'}}>{p.location}</div></div>
+              <div><span style={{fontWeight:800,fontSize:16,color:p.complaints>8?'var(--red)':'var(--gold-d)'}}>{p.complaints}</span><span style={{fontSize:11,color:'var(--tm)',marginLeft:3}}>open</span></div>
+            </div>
+          ))}
+        </div>
+        <div className="ins-c">
+          <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:12}}>
+            <div className="ins-i" style={{background:'var(--bp)'}}>👤</div>
+            <div><div className="ins-t">High-Risk Tenants</div><div className="ins-d">Tenants flagged by AI for churn or disputes</div></div>
+          </div>
+          {tenants.filter(t=>t.complaints>=3||t.status==='overdue').map(t=>(
+            <div key={t.id} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 0',borderBottom:'1px solid var(--bd)'}}>
+              <Av name={t.name} size={30}/>
+              <div style={{flex:1}}><div style={{fontSize:13.5,fontWeight:700}}>{t.name}</div><div style={{fontSize:11.5,color:'var(--tm)'}}>{t.unit} · {t.complaints} complaint{t.complaints!==1?'s':''}</div></div>
+              <div style={{textAlign:'right'}}><Bdg s={t.status==='overdue'?'overdue':'open'}/><div style={{fontSize:11,color:'var(--tm)',marginTop:2}}>Churn risk: High</div></div>
+            </div>
+          ))}
+        </div>
+        <div className="ins-c">
+          <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:12}}>
+            <div className="ins-i" style={{background:'var(--teal-pale)'}}>💬</div>
+            <div><div className="ins-t">WhatsApp AI Activity</div><div className="ins-d">AI agent performance this month</div></div>
+          </div>
+          {[['💬','Messages processed','847'],['📋','Complaints auto-logged','23'],['✅','Rent confirmations','64'],['🔔','Reminders sent','128'],['⚡','Avg response time','< 30s']].map(r=>(
+            <div key={r[1]} style={{display:'flex',alignItems:'center',padding:'8px 0',borderBottom:'1px solid var(--bd)',fontSize:13}}>
+              <span style={{width:22}}>{r[0]}</span><span style={{flex:1,color:'var(--ts)',fontWeight:500}}>{r[1]}</span><span style={{fontWeight:800,color:'var(--teal-d)'}}>{r[2]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-hd"><span className="card-ttl">✦ AI Recommendations</span></div>
+        <div className="card-bd">
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:11}}>
+            {[{ic:'🔧',t:'Schedule Plumbing Audit',d:'Plumbing at Sunset Towers is 3× above baseline. Full audit recommended within 14 days.',bg:'var(--rp)',cl:'var(--red)'},
+              {ic:'💰',t:"Escalate Fatima's Overdue",d:'2 consecutive months overdue. Enable automated escalation flow via WhatsApp.',bg:'var(--gold-pale)',cl:'var(--gold-d)'},
+              {ic:'👋',t:'Tenant Retention Check-in',d:'3 leases expiring in 60 days with no renewal intent. Outreach recommended.',bg:'var(--teal-pale)',cl:'var(--teal-d)'}].map(r=>(
+              <div key={r.t} style={{background:r.bg,borderRadius:9,border:'1px solid '+r.cl+'30',padding:'14px 15px'}}>
+                <div style={{fontSize:20,marginBottom:8}}>{r.ic}</div>
+                <div style={{fontSize:13.5,fontWeight:700,marginBottom:6,color:r.cl}}>{r.t}</div>
+                <div style={{fontSize:12.5,color:'var(--ts)',lineHeight:1.55,marginBottom:10}}>{r.d}</div>
+                <button className="btn b-out b-xs" onClick={()=>alert('Action: '+r.t)}>Take Action →</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: REPORTS
+// ═══════════════════════════════════════════════
+const PgReports = ({showToast=()=>{}}) => {
+  const [schedules,setSchedules] = useState([
+    {name:'Monthly Collection Report',freq:'Monthly',rec:'emeka@caretaker.ai',next:'Apr 1',last:'Mar 1',on:true},
+    {name:'Weekly Maintenance Summary',freq:'Weekly',rec:'emeka@caretaker.ai, sade@caretaker.ai',next:'Mar 17',last:'Mar 10',on:true},
+    {name:'Occupancy Report',freq:'Monthly',rec:'emeka@caretaker.ai',next:'Apr 1',last:'Mar 1',on:false},
+  ]);
+  const toggleS = i=>setSchedules(s=>s.map((x,j)=>j===i?{...x,on:!x.on}:x));
+  return (
+    <div className="page">
+      <div className="sc-hd"><div><div className="sc-ttl">Reports</div><div className="sc-sb">Download and schedule operational reports</div></div>
+        <button className="btn b-pri b-sm" onClick={()=>showToast('Schedule a new report — feature in beta')}>+ Schedule Report</button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:18}}>
+        {[['📊','Monthly Collection','Rent collection, outstanding and overdue payments','Last: Mar 1','var(--teal-pale)'],
+          ['🏢','Occupancy Report','Unit rates, vacancy trends and turnover analysis','Last: Mar 1','var(--bp)'],
+          ['⚠️','Maintenance Report','Complaint volume, resolution times and performance','Last: Feb 28','var(--gold-pale)'],
+          ['📋','Tenant Report','Tenant activity, lease status and churn risk','Last: Mar 1','var(--pp)'],
+          ['💬','AI Activity Report','WhatsApp messages, AI accuracy and response times','Last: Mar 1','var(--teal-pale)'],
+          ['📈','Portfolio Performance','Revenue trends and KPIs across all properties','Last: Feb 28','var(--gp)'],
+        ].map(([ic,name,desc,meta,bg])=>(
+          <div className="rc-card" key={name}>
+            <div style={{width:44,height:44,borderRadius:10,background:bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{ic}</div>
+            <div style={{flex:1}}><div style={{fontSize:13.5,fontWeight:700,marginBottom:3}}>{name}</div><div style={{fontSize:12.5,color:'var(--ts)'}}>{desc}</div><div style={{fontSize:11.5,color:'var(--tm)',marginTop:3}}>{meta}</div></div>
+            <div style={{display:'flex',flexDirection:'column',gap:6,flexShrink:0}}>
+              <button className="btn b-pri b-xs" onClick={()=>showToast('Generating PDF: '+name)}>⬇ PDF</button>
+              <button className="btn b-out b-xs" onClick={()=>showToast('Scheduled: '+name)}>Schedule</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="card">
+        <div className="card-hd"><span className="card-ttl">Scheduled Reports</span></div>
+        <div style={{overflowX:'auto'}}>
+          <table><thead><tr><th>Report</th><th>Frequency</th><th>Recipients</th><th>Next Run</th><th>Last Run</th><th>Active</th><th></th></tr></thead>
+            <tbody>{schedules.map((r,i)=>(
+              <tr key={i}><td className="pn">{r.name}</td><td><span className="pt">{r.freq}</span></td>
+                <td><span style={{fontSize:12.5,color:'var(--ts)',maxWidth:200,display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.rec}</span></td>
+                <td><span className="pt">{r.next}</span></td><td><span className="pt">{r.last}</span></td>
+                <td><Tog on={r.on} onChange={()=>toggleS(i)}/></td>
+                <td><button className="btn b-gh b-xs" onClick={()=>alert('Edit schedule: '+r.name)}>Edit</button></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: STAFF
+// ═══════════════════════════════════════════════
+const PgStaff = ({showToast=()=>{}}) => {
+  const [staff,setStaff] = useState([
+    {name:'Emeka Okafor',role:'Admin',email:'emeka@caretaker.ai',props:'All Properties',active:true,av:'#0E7A6A',last:'Today'},
+    {name:'Sade Adeyemi',role:'Property Manager',email:'sade@caretaker.ai',props:'Westridge Estate',active:true,av:'#7C3AED',last:'Today'},
+    {name:'Chukwu Obi',role:'Maintenance Staff',email:'chukwu@caretaker.ai',props:'Harmony Gardens, Sunset Towers',active:true,av:'#2563EB',last:'Yesterday'},
+    {name:'Aminu Bello',role:'Maintenance Staff',email:'aminu@caretaker.ai',props:'All Properties',active:false,av:'#1A9E8A',last:'Mar 8'},
+    {name:'Tunde Williams',role:'Property Manager',email:'tunde@caretaker.ai',props:'Sunset Towers',active:true,av:'#D4870A',last:'Today'},
+    {name:'Kemi Ade',role:'Finance',email:'kemi@caretaker.ai',props:'All Properties',active:true,av:'#DC2626',last:'Mar 12'},
+  ]);
+  const toggleActive = i=>setStaff(s=>s.map((x,j)=>j===i?{...x,active:!x.active}:x));
+  return (
+    <div className="page">
+      <div className="sc-hd"><div><div className="sc-ttl">Staff & Access</div><div className="sc-sb">Manage team members and permissions</div></div>
+        <button className="btn b-pri b-sm" onClick={()=>showToast('Invite sent — team member will receive an email')}>+ Invite Member</button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:11,marginBottom:18}}>
+        {staff.map((s,i)=>(
+          <div className="st-card" key={s.name}>
+            <div style={{width:44,height:44,borderRadius:'50%',background:s.av,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:800,color:'#fff',flexShrink:0}}>
+              {s.name.split(' ').map(p=>p[0]).join('')}
+            </div>
+            <div style={{flex:1}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3}}>
+                <div style={{fontSize:14.5,fontWeight:700}}>{s.name}</div>
+                <span className={'badge '+(s.role==='Admin'?'b-scheduled':s.role.includes('Manager')?'b-available':s.role==='Finance'?'b-high':'b-in-progress')} style={{fontSize:10.5}}>{s.role}</span>
+                {!s.active&&<span style={{fontSize:10.5,color:'var(--tm)',background:'var(--cr)',border:'1px solid var(--bd)',padding:'1px 7px',borderRadius:20,fontWeight:500}}>Inactive</span>}
+              </div>
+              <div style={{fontSize:12.5,color:'var(--ts)'}}>{s.email}</div>
+              <div style={{fontSize:11.5,color:'var(--tm)',marginTop:3}}>Props: {s.props} · Last: {s.last}</div>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:6}}>
+              <button className="btn b-out b-xs" onClick={()=>showToast('Editing: '+s.name)}>Edit</button>
+              <button className="btn b-xs" style={{background:'transparent',border:'1.5px solid var(--bd)',color:s.active?'var(--red)':'var(--gn)',fontFamily:'var(--font)',cursor:'pointer',borderRadius:5,padding:'3px 9px',fontSize:11,fontWeight:600,transition:'all .12s'}} onClick={()=>toggleActive(i)}>{s.active?'Disable':'Enable'}</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="card">
+        <div className="card-hd"><span className="card-ttl">Role Permissions</span></div>
+        <div style={{overflowX:'auto'}}>
+          <table><thead><tr><th>Permission</th><th>Admin</th><th>Property Manager</th><th>Maintenance Staff</th><th>Finance</th></tr></thead>
+            <tbody>{[
+              ['View Dashboard','✅','✅','✅','✅'],['Manage Tenants','✅','✅','—','—'],
+              ['Manage Complaints','✅','✅','✅','—'],['View Payments','✅','✅','—','✅'],
+              ['Edit Payments','✅','—','—','✅'],['Send Broadcasts','✅','✅','—','—'],
+              ['View AI Insights','✅','✅','—','✅'],['Manage Staff','✅','—','—','—'],
+              ['Edit Settings','✅','—','—','—'],
+            ].map(([perm,...vals])=>(
+              <tr key={perm}><td style={{fontWeight:600}}>{perm}</td>{vals.map((v,i)=><td key={i} style={{color:v==='✅'?'var(--teal-d)':'var(--tm)',fontSize:16,fontWeight:v==='✅'?700:400}}>{v}</td>)}</tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// PAGE: SETTINGS
+// ═══════════════════════════════════════════════
+const PgSettings = ({showToast=()=>{}}) => {
+  const [tab,setTab] = useState('org');
+  const [org,setOrg] = useState({name:"Emeka's Property Mgmt",email:'emeka@caretaker.ai',phone:'+234 801 234 5678',address:'Plot 12, Victoria Island, Lagos',desc:'Premium residential property management across Lagos.'});
+  const setO = (k,v) => setOrg(o=>({...o,[k]:v}));
+  const [saved,setSaved] = useState(false);
+  const save = () => {setSaved(true);setTimeout(()=>setSaved(false),2500);};
+  const [notif,setNotif] = useState({complaint:true,payment:true,overdue:true,weekly:false,aioff:true,feed:true,push:false,sound:false});
+  const [wa,setWa] = useState({autoreply:true,detection:true,parsing:true,sentiment:false});
+  const [pass,setPass] = useState({cur:'',nw:'',conf:''});
+  const doPassUpdate = () => {
+    if (!pass.cur||!pass.nw||!pass.conf){alert('Please fill in all fields.');return;}
+    if (pass.nw!==pass.conf){alert('New passwords do not match.');return;}
+    if (pass.nw.length<6){alert('Password must be at least 6 characters.');return;}
+    alert('Password updated successfully.');setPass({cur:'',nw:'',conf:''});
+  };
+  const TABS = [['🏢','org','Organization'],['📱','wa','WhatsApp & AI'],['🔔','notif','Notifications'],['💳','billing','Billing'],['🔒','sec','Security']];
+  return (
+    <div className="page">
+      <div className="sc-hd"><div><div className="sc-ttl">Settings</div><div className="sc-sb">Manage your organization and platform preferences</div></div>
+        <button className="btn b-pri b-sm" onClick={save}>{saved?'✓ Saved':'Save Changes'}</button>
+      </div>
+      <div className="stg-layout">
+        <div className="stg-nav">
+          {TABS.map(([ic,id,l])=>(
+            <div key={id} className={'stg-nav-it '+(tab===id?'active':'')} onClick={()=>setTab(id)}><span>{ic}</span>{l}</div>
+          ))}
+        </div>
+        <div>
+          {tab==='org'&&(
+            <div>
+              <div style={{marginBottom:22}}>
+                <div className="stg-sec-ttl">Organization Profile</div>
+                <div className="fr2" style={{marginBottom:14}}>
+                  <FG label="Organization Name"><input className="fi2" value={org.name} onChange={e=>setO('name',e.target.value)}/></FG>
+                  <FG label="Contact Email"><input className="fi2" value={org.email} onChange={e=>setO('email',e.target.value)}/></FG>
+                </div>
+                <div className="fr2" style={{marginBottom:14}}>
+                  <FG label="Phone Number"><input className="fi2" value={org.phone} onChange={e=>setO('phone',e.target.value)}/></FG>
+                  <FG label="Business Address"><input className="fi2" value={org.address} onChange={e=>setO('address',e.target.value)}/></FG>
+                </div>
+                <FG label="Description"><textarea className="fi2" rows={3} value={org.desc} onChange={e=>setO('desc',e.target.value)} style={{resize:'vertical'}}/></FG>
+              </div>
+              <div>
+                <div className="stg-sec-ttl">Portfolio Settings</div>
+                {[['Service Charge Due Date','January 31 (annual)'],['Late Fee Policy','5% after 30 days'],['Currency','Nigerian Naira (₦)'],['Timezone','Africa/Lagos (WAT, UTC+1)']].map(([l,v])=>(
+                  <div className="stg-row" key={l}><div className="stg-lbl">{l}</div><input className="fi2" defaultValue={v} style={{width:220}}/></div>
+                ))}
+              </div>
+            </div>
+          )}
+          {tab==='wa'&&(
+            <div>
+              <div style={{marginBottom:22}}>
+                <div className="stg-sec-ttl">WhatsApp Connection</div>
+                <div style={{background:'var(--teal-pale)',border:'1px solid rgba(43,184,163,.25)',borderRadius:8,padding:'13px 15px',marginBottom:14,display:'flex',alignItems:'center',gap:12}}>
+                  <span style={{fontSize:22}}>✅</span>
+                  <div><div style={{fontSize:13.5,fontWeight:700,color:'var(--teal-dk)'}}>WhatsApp Business Connected</div><div style={{fontSize:12.5,color:'var(--teal-d)',marginTop:2}}>+234 800 CARETAKER · Verified Business Account</div></div>
+                  <button className="btn b-out b-sm" style={{marginLeft:'auto'}} onClick={()=>alert('Reconnecting...')}>Reconnect</button>
+                </div>
+                {[['Auto-reply when AI is offline','Enable fallback message when AI agent is unavailable','autoreply'],['Smart complaint detection','Auto-log complaints from tenant messages','detection'],['Payment confirmation parsing','Detect and log payment confirmations','parsing'],['Sentiment analysis','Flag negative sentiment messages for review','sentiment']].map(([l,sub,k])=>(
+                  <div className="stg-row" key={k}><div><div className="stg-lbl">{l}</div><div className="stg-sub">{sub}</div></div><Tog on={wa[k]} onChange={v=>setWa(w=>({...w,[k]:v}))}/></div>
+                ))}
+              </div>
+              <div>
+                <div className="stg-sec-ttl">AI Agent Behaviour</div>
+                {[['AI response tone','Professional'],['Auto-escalation threshold','3 unanswered messages'],['Business hours','8:00 AM – 8:00 PM WAT'],['After-hours behaviour','Auto-reply with callback promise']].map(([l,v])=>(
+                  <div className="stg-row" key={l}><div className="stg-lbl">{l}</div><input className="fi2" defaultValue={v} style={{width:220}}/></div>
+                ))}
+              </div>
+            </div>
+          )}
+          {tab==='notif'&&(
+            <div>
+              <div style={{marginBottom:22}}>
+                <div className="stg-sec-ttl">Email Notifications</div>
+                {[['New complaint logged','Receive email when AI logs a new complaint','complaint'],['Payment received','Notify on every confirmed rent payment','payment'],['Overdue rent alert','Alert when tenant is 3+ days overdue','overdue'],['Weekly summary','Portfolio digest every Monday morning','weekly'],['AI agent offline','Alert when WhatsApp AI goes offline','aioff']].map(([l,sub,k])=>(
+                  <div className="stg-row" key={k}><div><div className="stg-lbl">{l}</div><div className="stg-sub">{sub}</div></div><Tog on={notif[k]} onChange={v=>setNotif(n=>({...n,[k]:v}))}/></div>
+                ))}
+              </div>
+              <div>
+                <div className="stg-sec-ttl">In-App Notifications</div>
+                {[['Live activity feed','Show real-time events in the dashboard activity feed','feed'],['Desktop push notifications','Browser push for critical alerts','push'],['Sound alerts','Play a sound for new messages and alerts','sound']].map(([l,sub,k])=>(
+                  <div className="stg-row" key={k}><div><div className="stg-lbl">{l}</div><div className="stg-sub">{sub}</div></div><Tog on={notif[k]} onChange={v=>setNotif(n=>({...n,[k]:v}))}/></div>
+                ))}
+              </div>
+            </div>
+          )}
+          {tab==='billing'&&(
+            <div>
+              <div style={{marginBottom:22}}>
+                <div className="stg-sec-ttl">Current Plan</div>
+                <div style={{background:'linear-gradient(135deg,var(--sb),var(--teal-dk))',borderRadius:'var(--r)',padding:'18px 22px',marginBottom:14,display:'flex',alignItems:'center',gap:16}}>
+                  <div><div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Growth Plan</div><div style={{fontSize:12.5,color:'rgba(255,255,255,.7)',marginTop:4}}>Up to 100 units · Unlimited AI messages · Priority support</div></div>
+                  <div style={{marginLeft:'auto',textAlign:'right'}}><div style={{fontSize:24,fontWeight:800,color:'#fff'}}>₦45,000</div><div style={{fontSize:11.5,color:'rgba(255,255,255,.6)'}}>per month</div></div>
+                </div>
+                {[['Units used','72 / 100'],['Billing cycle','Monthly · Renews Apr 1, 2025'],['Payment method','Mastercard ending 4242'],['Next invoice','₦45,000 on Apr 1, 2025']].map(([l,v])=>(
+                  <div className="stg-row" key={l}><div className="stg-lbl">{l}</div><div style={{fontSize:13.5,color:'var(--ts)',fontWeight:600}}>{v}</div></div>
+                ))}
+              </div>
+              <div style={{display:'flex',gap:10}}>
+                <button className="btn b-out" onClick={()=>showToast('Loading invoice history...')}>View Invoice History</button>
+                <button className="btn b-pri" onClick={()=>showToast('Upgrade flow — feature in beta')}>Upgrade Plan</button>
+              </div>
+            </div>
+          )}
+          {tab==='sec'&&(
+            <div>
+              <div style={{marginBottom:22}}>
+                <div className="stg-sec-ttl">Account Security</div>
+                {[['Two-factor authentication','Require 2FA for all team logins',true],['Session timeout','Log out after 8 hours of inactivity',true],['Login notifications','Email on new device sign-in',false]].map(([l,sub,init])=>{
+                  const [v,setV] = useState(init);
+                  return <div className="stg-row" key={l}><div><div className="stg-lbl">{l}</div><div className="stg-sub">{sub}</div></div><Tog on={v} onChange={setV}/></div>;
+                })}
+              </div>
+              <div>
+                <div className="stg-sec-ttl">Change Password</div>
+                <div style={{display:'flex',flexDirection:'column',gap:12,maxWidth:360}}>
+                  <FG label="Current Password"><input type="password" className="fi2" placeholder="••••••••" value={pass.cur} onChange={e=>setPass(p=>({...p,cur:e.target.value}))}/></FG>
+                  <FG label="New Password"><input type="password" className="fi2" placeholder="••••••••" value={pass.nw} onChange={e=>setPass(p=>({...p,nw:e.target.value}))}/></FG>
+                  <FG label="Confirm New Password"><input type="password" className="fi2" placeholder="••••••••" value={pass.conf} onChange={e=>setPass(p=>({...p,conf:e.target.value}))}/></FG>
+                  <button className="btn b-pri" style={{alignSelf:'flex-start'}} onClick={doPassUpdate}>Update Password</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════
+// NAV CONFIG
+// ═══════════════════════════════════════════════
+const NAV = [
+  {label:null,items:[{id:'dashboard',ic:'⊞',l:'Dashboard'}]},
+  {label:'Operations',items:[{id:'complaints',ic:'⚠',l:'Complaints'},{id:'tenants',ic:'👤',l:'Tenants'},{id:'properties',ic:'🏢',l:'Properties'}]},
+  {label:'Finance',items:[{id:'payments',ic:'₦',l:'Service Charges'},{id:'invoices',ic:'🧾',l:'Invoices'}]},
+  {label:'Communication',items:[{id:'inbox',ic:'💬',l:'WhatsApp Inbox'},{id:'broadcast',ic:'📢',l:'Broadcast'}]},
+  {label:'Intelligence',items:[{id:'insights',ic:'✦',l:'AI Insights'},{id:'reports',ic:'📊',l:'Reports'}]},
+  {label:'Management',items:[{id:'vendors',ic:'🔧',l:'Vendors'},{id:'staff',ic:'👥',l:'Staff & Access'},{id:'settings',ic:'⚙',l:'Settings'}]},
+];
+const PAGE_TITLES = {dashboard:'Dashboard',complaints:'Complaints',tenants:'Tenants',properties:'Properties',payments:'Service Charges',invoices:'Invoices',inbox:'WhatsApp Inbox',broadcast:'Broadcast',insights:'AI Insights',reports:'Reports',vendors:'Vendors',staff:'Staff & Access',settings:'Settings'};
+
+// ═══════════════════════════════════════════════
+// ROOT APP
+// ═══════════════════════════════════════════════
+function App() {
+  const [page, setPage] = useState('dashboard');
+  const [subView, setSubView] = useState(null);
+  const [modal, setModal] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [props, setProps] = useState(SEED_PROPS);
+  const [tenants, setTenants] = useState(SEED_TENANTS);
+  const [complaints, setComplaints] = useState(SEED_COMPLAINTS);
+  const [vendors, setVendors] = useState(SEED_VENDORS);
+  const [threads, setThreads] = useState(WA_THREADS);
+  const [inboxSel, setInboxSel] = useState(0);
+
+  const showToast = msg => { setToast(msg); };
+  const nav = pg => { setPage(pg); setSubView(null); };
+  const openModal = type => setModal(type);
+  const closeModal = () => setModal(null);
+
+  // Cross-page navigation to detail views
+  const crossNav = (pg, id) => { setPage(pg); setSubView({type:pg==='complaints'?'complaint':pg==='tenants'?'tenant':pg==='vendors'?'vendor':'property', id}); };
+  const viewDetail = (type, id) => { const pageMap = {complaint:'complaints',tenant:'tenants',property:'properties',vendor:'vendors'}; crossNav(pageMap[type]||type, id); };
+
+  // State mutations
+  const addProp = p => { setProps(ps=>[...ps,p]); showToast('Property "'+p.name+'" added successfully'); };
+  const addTenant = t => { setTenants(ts=>[...ts,t]); showToast('Tenant "'+t.name+'" added successfully'); };
+  const addComplaint = c => { setComplaints(cs=>[...cs,c]); showToast('Complaint '+c.id+' logged'); };
+  const addVendor = v => { setVendors(vs=>[...vs,v]); showToast('Vendor "'+v.name+'" added'); };
+
+  const updateStatus = (id, status) => {
+    const label = {open:'Open','in-progress':'In Progress',done:'Resolved'}[status]||status;
+    setComplaints(cs=>cs.map(c=>c.id===id?{...c,status,timeline:[...(c.timeline||[]),{time:fmtTime(),action:'Status changed to "'+label+'"',sys:false}]}:c));
+    showToast('Complaint '+id+' → '+label);
+  };
+
+  const assignVendor = (cId, vId) => {
+    const v = vendors.find(x=>x.id===vId);
+    setComplaints(cs=>cs.map(c=>c.id===cId?{...c,vendorId:vId,vendorName:v?.name,status:c.status==='open'?'in-progress':c.status,timeline:[...(c.timeline||[]),{time:fmtTime(),action:(v?.name||'Vendor')+' assigned to this complaint',sys:false}]}:c));
+    setVendors(vs=>vs.map(v2=>v2.id===vId?{...v2,status:'busy'}:v2));
+    showToast((v?.name||'Vendor')+' assigned to '+cId);
+  };
+
+  const openCount = complaints.filter(c=>c.status!=='done').length;
+
+  const renderPage = () => {
+    const common = {props,tenants,complaints,vendors,subView,setSubView,openModal,crossNav,nav,viewDetail,showToast};
+    switch(page) {
+      case 'dashboard': return <PgDash {...common} openModal={openModal}/>;
+      case 'properties': return <PgProperties {...common}/>;
+      case 'tenants': return <PgTenants {...common} navToInbox={(tenantId)=>{const idx=threads.findIndex(t=>t.tenantId===tenantId);setInboxSel(idx>=0?idx:0);nav('inbox');}}/>;
+      case 'complaints': return <PgComplaints {...common} updateStatus={updateStatus} assignVendor={assignVendor}/>;
+      case 'vendors': return <PgVendors {...common}/>;
+      case 'payments': return <PgPayments props={props} openModal={openModal} showToast={showToast}/>;
+      case 'invoices': return <PgInvoices showToast={showToast}/>;
+      case 'inbox': return <PgInbox threads={threads} setThreads={setThreads} initialSel={inboxSel}/>;
+      case 'broadcast': return <PgBroadcast/>;
+      case 'insights': return <PgInsights complaints={complaints} tenants={tenants} props={props}/>;
+      case 'reports': return <PgReports showToast={showToast}/>;
+      case 'staff': return <PgStaff showToast={showToast}/>;
+      case 'settings': return <PgSettings showToast={showToast}/>;
+      default: return <PgDash {...common} openModal={openModal}/>;
+    }
+  };
+
+  return (
+    <>
+      <div className="shell">
+        {/* SIDEBAR */}
+        <aside className="sidebar">
+          <div className="sb-logo">
+            <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAQABgADASIAAhEBAxEB/8QAHAABAAEFAQEAAAAAAAAAAAAAAAcBBAUGCAID/8QAWhABAAIBAwEEBAYKDAsHAwUBAAECAwQFEQYHEiExQVFhcRMidIGRsggUFTI2QqGxs9I1N1JVYnJzkpOUwdEWFyMkJSYnM2SC8DREU1RWwuFjg4RDRUaio+L/xAAbAQEAAgMBAQAAAAAAAAAAAAAABAYCAwUHAf/EAD8RAQABAwICBgcGBQQCAgMAAAABAgMEBREhMQYSQVFx0RMyYZGhscEUIjM0coEVFlLh8CM1U6IkJULxQ1SC/9oADAMBAAIRAxEAPwDsoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/2Q==" alt="Caretaker AI"/>
+          </div>
+          <div className="prop-sw">
+            <div>
+              <div className="prop-n">Emeka's Portfolio</div>
+              <div className="prop-c">{props.length} properties · {props.reduce((s,p)=>s+p.units,0)} units</div>
+            </div>
+            <span style={{color:'rgba(255,255,255,.28)',fontSize:11}}>⌄</span>
+          </div>
+          {NAV.map((g,gi)=>(
+            <div className="nav-sec" key={gi}>
+              {g.label&&<div className="nav-lbl">{g.label}</div>}
+              {g.items.map(item=>{
+                const count = item.id==='complaints'?openCount:0;
+                return (
+                  <div key={item.id} className={'nav-it '+(page===item.id?'active':'')} onClick={()=>nav(item.id)}>
+                    <span className="nav-ic">{item.ic}</span>
+                    <span style={{flex:1}}>{item.l}</span>
+                    {count>0&&<span className="nav-bd">{count}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+          <div className="sb-ft">
+            <div className="uc">
+              <div style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,var(--gold),var(--teal))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>EO</div>
+              <div><div className="u-nm">Emeka Okafor</div><div className="u-rl">Property Manager</div></div>
+              <span style={{marginLeft:'auto',fontSize:12,color:'rgba(255,255,255,.25)'}}>⋯</span>
+            </div>
+          </div>
+        </aside>
+
+        {/* MAIN */}
+        <div className="main">
+          <div className="topbar">
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <div className="pg-ttl">{PAGE_TITLES[page]}</div>
+              {subView&&<span style={{fontSize:13,color:'var(--tm)'}}>/</span>}
+              {subView&&<span style={{fontSize:13,color:'var(--tm)',fontWeight:500}}>Detail</span>}
+            </div>
+            <div className="srch"><span style={{fontSize:13,color:'var(--tm)'}}>🔍</span><input placeholder="Search tenants, units, complaints..."/><span className="srch-k">⌘K</span></div>
+            <div className="tb-acts">
+              <div className="ib" onClick={()=>showToast('3 new notifications')}>🔔<div className="nd"/></div>
+              <div className="ib" onClick={()=>nav('inbox')}>💬</div>
+              <div className="tb-av" onClick={()=>nav('settings')}>EO</div>
+            </div>
+          </div>
+          <div className="content" key={page+JSON.stringify(subView)}>
+            {renderPage()}
+          </div>
+        </div>
+      </div>
+
+      {/* MODALS */}
+      {modal==='addProp'&&<AddPropertyModal onClose={closeModal} onAdd={addProp}/>}
+      {modal==='addTenant'&&<AddTenantModal onClose={closeModal} onAdd={addTenant} props={props}/>}
+      {modal==='addComplaint'&&<AddComplaintModal onClose={closeModal} onAdd={addComplaint} tenants={tenants} props={props}/>}
+      {modal==='addVendor'&&<AddVendorModal onClose={closeModal} onAdd={addVendor} props={props}/>}
+
+      {/* TOAST */}
+      {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

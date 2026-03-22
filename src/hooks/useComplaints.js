@@ -1,3 +1,5 @@
-export function useComplaints() {
-  return { data: [], loading: false, error: null }
-}
+/**
+ * Complaints hooks — PRD §8.4.
+ */
+export { useComplaintsList } from './useComplaintsList'
+export { useComplaintDetail } from './useComplaintDetail'

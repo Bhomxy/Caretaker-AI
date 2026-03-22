@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
+import Avatar from '../../components/ui/Avatar'
 import EmptyState from '../../components/ui/EmptyState'
 import Skeleton from '../../components/ui/Skeleton'
 import Badge from '../../components/ui/Badge'
@@ -48,15 +48,14 @@ export default function RecentComplaints({ rows, loading }) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-soft">
-      <div className="flex items-center justify-between border-b border-border px-5 py-4">
-        <span className="text-sm font-bold text-ink">Recent complaints</span>
+    <div className="rounded-[10px] border border-border bg-card shadow-soft">
+      <div className="flex items-center justify-between border-b border-border px-[18px] py-3.5">
+        <span className="text-[13.5px] font-bold text-ink">Recent complaints</span>
         <Link
           to="/complaints"
-          className="inline-flex items-center gap-0.5 text-xs font-bold text-teal-d hover:text-teal-dk"
+          className="text-xs font-bold text-teal-d hover:text-teal-dk"
         >
-          View all
-          <ChevronRight className="h-4 w-4" aria-hidden />
+          View all →
         </Link>
       </div>
       <div className="overflow-x-auto">
@@ -84,7 +83,10 @@ export default function RecentComplaints({ rows, loading }) {
                   {shortId(row.id)}
                 </td>
                 <td className="border-b border-border px-4 py-3 text-sm text-ink">
-                  {row.tenantName}
+                  <div className="flex items-center gap-2">
+                    <Avatar name={row.tenantName} size="sm" tone="light" />
+                    <span className="font-semibold">{row.tenantName}</span>
+                  </div>
                 </td>
                 <td className="border-b border-border px-4 py-3 text-sm text-ink">
                   {row.type}

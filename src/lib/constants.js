@@ -15,6 +15,8 @@ export const STATUS_STYLES = {
   open: 'bg-gold-pale text-yellow-800',
   'in-progress': 'bg-blue-pale text-blue-700',
   resolved: 'bg-green-pale text-green-800',
+  closed: 'bg-green-pale text-green-800',
+  cancelled: 'bg-gray-100 text-gray-700',
   critical: 'bg-red-pale text-red-700',
   high: 'bg-gold-pale text-yellow-800',
   medium: 'bg-gray-100 text-gray-700',
@@ -25,6 +27,11 @@ export const STATUS_STYLES = {
   sent: 'bg-green-pale text-green-800',
   scheduled: 'bg-purple-pale text-purple-700',
   draft: 'bg-gray-100 text-gray-700',
+  /** PRD §8.5 rent roll / invoices */
+  'invoice-sent': 'bg-blue-pale text-blue-700',
+  'due-soon': 'bg-gold-pale text-yellow-800',
+  upcoming: 'bg-gray-100 text-gray-700',
+  disputed: 'bg-red-pale text-red-700',
 }
 
 /**
@@ -99,6 +106,49 @@ export const TENANT_STATUS_OPTIONS = [
   { value: 'overdue', label: 'Overdue' },
 ]
 
+/** PRD §8.4 — complaint list filters */
+export const COMPLAINT_STATUS_FILTER_ALL = 'all'
+
+/** @type {{ value: string; label: string }[]} */
+export const COMPLAINT_STATUS_FILTER_OPTIONS = [
+  { value: COMPLAINT_STATUS_FILTER_ALL, label: 'All statuses' },
+  { value: 'open', label: 'Open' },
+  { value: 'in-progress', label: 'In progress' },
+  { value: 'resolved', label: 'Resolved' },
+]
+
+export const COMPLAINT_PRIORITY_FILTER_ALL = 'all'
+
+/** @type {{ value: string; label: string }[]} */
+export const COMPLAINT_PRIORITY_FILTER_OPTIONS = [
+  { value: COMPLAINT_PRIORITY_FILTER_ALL, label: 'All priorities' },
+  { value: 'critical', label: 'Critical' },
+  { value: 'high', label: 'High' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'low', label: 'Low' },
+]
+
+/** PRD §8.8 — vendor trade filter + Add Vendor form */
+export const VENDOR_TRADE_FILTER_ALL = 'all'
+
+/** @type {{ value: string; label: string }[]} */
+export const VENDOR_TRADE_OPTIONS = [
+  { value: VENDOR_TRADE_FILTER_ALL, label: 'All trades' },
+  { value: 'plumber', label: 'Plumber' },
+  { value: 'electrician', label: 'Electrician' },
+  { value: 'ac-technician', label: 'AC Technician' },
+  { value: 'pest-control', label: 'Pest Control' },
+  { value: 'security', label: 'Security' },
+  { value: 'painter', label: 'Painter' },
+  { value: 'carpenter', label: 'Carpenter' },
+  { value: 'general', label: 'General' },
+]
+
+/** Subset for Add Vendor modal (no “all”). */
+export const VENDOR_TRADE_FORM_OPTIONS = VENDOR_TRADE_OPTIONS.filter(
+  (o) => o.value !== VENDOR_TRADE_FILTER_ALL
+)
+
 /** Accent bar on property cards (theme utilities only). */
 export const PROPERTY_CARD_ACCENTS = [
   'border-teal-d',
@@ -106,3 +156,77 @@ export const PROPERTY_CARD_ACCENTS = [
   'border-blue',
   'border-purple',
 ]
+
+/** PRD §8.5 — Payments deep links */
+export const PAYMENTS_TAB_RENT_ROLL = 'rent-roll'
+export const PAYMENTS_TAB_APPROVALS = 'approvals'
+export const PAYMENTS_TAB_INVOICES = 'invoices'
+export const PAYMENTS_TAB_RECEIPTS = 'receipts'
+
+/** @type {{ id: string; label: string }[]} */
+export const PAYMENTS_TAB_OPTIONS = [
+  { id: PAYMENTS_TAB_RENT_ROLL, label: 'Rent roll' },
+  { id: PAYMENTS_TAB_APPROVALS, label: 'Approvals' },
+  { id: PAYMENTS_TAB_INVOICES, label: 'Invoices' },
+  { id: PAYMENTS_TAB_RECEIPTS, label: 'Receipts' },
+]
+
+/** PRD §8.5 — rent roll status filter */
+export const RENT_ROLL_STATUS_FILTER_ALL = 'all'
+
+/** @type {{ value: string; label: string }[]} */
+export const RENT_ROLL_STATUS_OPTIONS = [
+  { value: RENT_ROLL_STATUS_FILTER_ALL, label: 'All statuses' },
+  { value: 'paid', label: 'Paid' },
+  { value: 'awaiting-approval', label: 'Awaiting approval' },
+  { value: 'invoice-sent', label: 'Invoice sent' },
+  { value: 'due-soon', label: 'Due soon' },
+  { value: 'overdue', label: 'Overdue' },
+  { value: 'upcoming', label: 'Upcoming' },
+]
+
+/** PRD §8.7 — broadcast template keys */
+export const BROADCAST_TEMPLATE_KEYS = [
+  'service-charge-reminder',
+  'lease-renewal',
+  'maintenance-notice',
+  'general-announcement',
+  'custom',
+]
+
+/** @type {{ key: string; label: string; defaultBody: string }[]} */
+export const BROADCAST_TEMPLATE_PRESETS = [
+  {
+    key: 'service-charge-reminder',
+    label: 'Service charge reminder',
+    defaultBody:
+      'Hello, this is a friendly reminder that your service charge for this period is due. Please pay via your usual channel. Reply here if you need assistance.',
+  },
+  {
+    key: 'lease-renewal',
+    label: 'Lease renewal notice',
+    defaultBody:
+      'Your lease is approaching renewal. We will share the renewal terms shortly. Kindly confirm if you intend to renew so we can prepare the paperwork.',
+  },
+  {
+    key: 'maintenance-notice',
+    label: 'Maintenance notice',
+    defaultBody:
+      'Scheduled maintenance will take place in the building this week. Access may be required for your unit — we will coordinate via this chat.',
+  },
+  {
+    key: 'general-announcement',
+    label: 'General announcement',
+    defaultBody:
+      'Important update for all residents: please read and acknowledge. Thank you for your cooperation.',
+  },
+  {
+    key: 'custom',
+    label: 'Custom message',
+    defaultBody: '',
+  },
+]
+
+/** Settings — localStorage keys (PRD §8.10) */
+export const SETTINGS_STORAGE_NOTIFICATIONS = 'caretaker_settings_notifications_v1'
+export const SETTINGS_STORAGE_AI = 'caretaker_settings_ai_v1'

@@ -14,6 +14,7 @@ import PaymentsPage from './pages/Payments/index'
 import InboxPage from './pages/Inbox/index'
 import BroadcastPage from './pages/Broadcast/index'
 import VendorsPage from './pages/Vendors/index'
+import VendorDetailPage from './pages/Vendors/VendorDetail'
 import InsightsPage from './pages/Insights/index'
 import SettingsPage from './pages/Settings/index'
 
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/broadcast" element={<BroadcastPage />} />
               <Route path="/vendors" element={<VendorsPage />} />
+              <Route path="/vendors/:vendorId" element={<VendorDetailPage />} />
               <Route path="/insights" element={<InsightsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>

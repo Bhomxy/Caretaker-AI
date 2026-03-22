@@ -64,7 +64,13 @@ function NavBadge({ variant, count }) {
 }
 
 export default function Sidebar() {
-  const { user, signOut, openComplaintsCount, pendingApprovalsCount } = useApp()
+  const {
+    user,
+    signOut,
+    openComplaintsCount,
+    pendingApprovalsCount,
+    totalUnitsCount,
+  } = useApp()
 
   const displayName =
     user?.user_metadata?.full_name?.trim() ||
@@ -98,7 +104,10 @@ export default function Sidebar() {
           />
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-bold text-white">Main portfolio</p>
-            <p className="text-[10px] font-semibold text-white/50">0 units</p>
+            <p className="text-[10px] font-semibold text-white/50">
+              {totalUnitsCount ?? 0}{' '}
+              {totalUnitsCount === 1 ? 'unit' : 'units'}
+            </p>
           </div>
           <ChevronDown className="h-4 w-4 shrink-0 text-white/40" aria-hidden />
         </button>
@@ -125,10 +134,10 @@ export default function Sidebar() {
                     end={item.end}
                     className={({ isActive }) =>
                       [
-                        'flex min-h-[40px] items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition-[color,background-color,box-shadow,opacity] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/45 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar',
+                        'relative mx-2 flex min-h-[38px] items-center gap-2.5 rounded-lg px-3 py-1.5 text-[13.5px] font-medium transition-[color,background-color] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar',
                         isActive
-                          ? 'bg-white text-teal-d shadow-soft'
-                          : 'text-white/75 hover:bg-white/[0.08] hover:text-white',
+                          ? 'bg-gold/15 font-semibold text-white before:absolute before:top-1 before:bottom-1 before:left-0 before:w-[3px] before:rounded-r before:bg-gold'
+                          : 'text-white/55 hover:bg-white/[0.07] hover:text-white/90',
                       ].join(' ')
                     }
                   >

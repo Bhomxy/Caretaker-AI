@@ -17,6 +17,10 @@ export function getPageTitle(pathname) {
     return 'Tenant'
   }
 
+  if (root === 'vendors' && parts[1]) {
+    return 'Vendor'
+  }
+
   const map = {
     properties: 'Properties',
     tenants: 'Tenants',

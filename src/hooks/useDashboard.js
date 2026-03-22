@@ -14,11 +14,24 @@ const emptyQueue = {
   expiringLeases: 0,
 }
 
+const emptyOccupancy = {
+  totalUnits: 0,
+  occupiedUnits: 0,
+  vacantUnits: 0,
+  byProperty: [],
+}
+
+const emptyArrears = { outstanding: 0, overdue: 0 }
+
 const emptyState = {
   loading: false,
   metrics: emptyMetrics,
   actionQueue: emptyQueue,
   recentComplaints: [],
+  collectionMonths: [],
+  activityItems: [],
+  occupancy: emptyOccupancy,
+  arrears: emptyArrears,
   error: null,
   partial: false,
 }
@@ -58,6 +71,10 @@ export function useDashboard(managerId) {
         metrics: bundle.metrics,
         actionQueue: bundle.actionQueue,
         recentComplaints: bundle.recentComplaints,
+        collectionMonths: bundle.collectionMonths ?? [],
+        activityItems: bundle.activityItems ?? [],
+        occupancy: bundle.occupancy ?? emptyOccupancy,
+        arrears: bundle.arrears ?? emptyArrears,
         error: bundle.error,
         partial: bundle.partial,
       })

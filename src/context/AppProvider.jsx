@@ -14,7 +14,7 @@ const TOAST_DURATION_MS = 2800
 
 export function AppProvider({ children }) {
   const { user, managerId, signOut } = useAuth()
-  const { openComplaintsCount, pendingApprovalsCount } =
+  const { openComplaintsCount, pendingApprovalsCount, totalUnitsCount } =
     useNavBadgeCounts(managerId)
 
   const [toast, setToast] = useState(null)
@@ -64,6 +64,7 @@ export function AppProvider({ children }) {
       signOut,
       openComplaintsCount,
       pendingApprovalsCount,
+      totalUnitsCount,
       showToast,
       dismissToast,
     }),
@@ -73,6 +74,7 @@ export function AppProvider({ children }) {
       signOut,
       openComplaintsCount,
       pendingApprovalsCount,
+      totalUnitsCount,
       showToast,
       dismissToast,
     ]

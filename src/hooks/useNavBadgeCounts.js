@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   fetchOpenComplaintsCount,
   fetchPendingApprovalsCount,
+  fetchTotalUnits,
 } from '../lib/queries/dashboard'
 
 /**
@@ -10,6 +11,7 @@ import {
 export function useNavBadgeCounts(managerId) {
   const [openComplaintsCount, setOpenComplaintsCount] = useState(0)
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0)
+  const [totalUnitsCount, setTotalUnitsCount] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -19,6 +21,7 @@ export function useNavBadgeCounts(managerId) {
         if (!cancelled) {
           setOpenComplaintsCount(0)
           setPendingApprovalsCount(0)
+          setTotalUnitsCount(0)
         }
       })
       return () => {
@@ -27,13 +30,15 @@ export function useNavBadgeCounts(managerId) {
     }
 
     ;(async () => {
-      const [open, pend] = await Promise.all([
+      const [open, pend, units] = await Promise.all([
         fetchOpenComplaintsCount(managerId),
         fetchPendingApprovalsCount(managerId),
+        fetchTotalUnits(managerId),
       ])
       if (cancelled) return
       setOpenComplaintsCount(open.value)
       setPendingApprovalsCount(pend.value)
+      setTotalUnitsCount(units.value)
     })()
 
     return () => {
@@ -41,5 +46,5 @@ export function useNavBadgeCounts(managerId) {
     }
   }, [managerId])
 
-  return { openComplaintsCount, pendingApprovalsCount }
+  return { openComplaintsCount, pendingApprovalsCount, totalUnitsCount }
 }

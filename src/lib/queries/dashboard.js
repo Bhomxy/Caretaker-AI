@@ -1,5 +1,9 @@
 import { supabase } from '../supabase'
-import { pickField } from '../utils'
+import {
+  normalizeTenantPaymentStatus,
+  pickField,
+  tenantMonthlyRentHint,
+} from '../utils'
 
 const TERMINAL_COMPLAINT = new Set(['resolved', 'closed', 'cancelled'])
 
@@ -243,6 +247,238 @@ export async function fetchRecentComplaints(managerId, limit = 4) {
 }
 
 /**
+ * Last 6 calendar months of payment totals (PRD §8.1 collection chart).
+ * @param {string} managerId
+ */
+export async function fetchMonthlyCollection(managerId) {
+  const { data, error } = await supabase
+    .from('payments')
+    .select('amount, created_at')
+    .eq('manager_id', managerId)
+
+  if (error) return { months: [], error }
+
+  const now = new Date()
+  const buckets = []
+  for (let i = 5; i >= 0; i -= 1) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    buckets.push({
+      key: `${d.getFullYear()}-${d.getMonth()}`,
+      label: d.toLocaleDateString('en-NG', { month: 'short' }),
+      total: 0,
+    })
+  }
+
+  for (const row of data ?? []) {
+    const raw = pickField(row, ['created_at'])
+    if (!raw) continue
+    const dt = new Date(raw)
+    if (Number.isNaN(dt.getTime())) continue
+    const key = `${dt.getFullYear()}-${dt.getMonth()}`
+    const bucket = buckets.find((b) => b.key === key)
+    if (!bucket) continue
+    const amt = Number(pickField(row, ['amount', 'amount_ngn', 'total']) ?? 0)
+    if (Number.isFinite(amt)) bucket.total += amt
+  }
+
+  return {
+    months: buckets.map(({ label, total }) => ({ label, total })),
+    error: null,
+  }
+}
+
+/**
+ * Mixed activity for dashboard feed (PRD §8.1).
+ * @param {string} managerId
+ * @param {number} limit
+ */
+export async function fetchActivityFeedItems(managerId, limit = 8) {
+  const [compRes, invRes, recRes] = await Promise.all([
+    supabase
+      .from('complaints')
+      .select('id, type, status, created_at, tenant_id')
+      .eq('manager_id', managerId)
+      .order('created_at', { ascending: false })
+      .limit(6),
+    supabase
+      .from('invoices')
+      .select('id, status, amount, created_at, tenant_id')
+      .eq('manager_id', managerId)
+      .order('created_at', { ascending: false })
+      .limit(6),
+    supabase
+      .from('receipts')
+      .select('id, amount, sent_at, tenant_id')
+      .eq('manager_id', managerId)
+      .order('sent_at', { ascending: false })
+      .limit(6),
+  ])
+
+  const tenantIds = new Set()
+  for (const r of compRes.data ?? []) {
+    if (r.tenant_id) tenantIds.add(r.tenant_id)
+  }
+  for (const r of invRes.data ?? []) {
+    if (r.tenant_id) tenantIds.add(r.tenant_id)
+  }
+  for (const r of recRes.data ?? []) {
+    if (r.tenant_id) tenantIds.add(r.tenant_id)
+  }
+
+  const ids = [...tenantIds]
+  const { data: tenRows } = ids.length
+    ? await supabase
+        .from('tenants')
+        .select('id, full_name, name')
+        .in('id', ids)
+    : { data: [] }
+
+  const tenantName = Object.fromEntries(
+    (tenRows ?? []).map((t) => [
+      t.id,
+      pickField(t, ['full_name', 'name']) ?? '—',
+    ])
+  )
+
+  /** @type {{ at: string; kind: string; title: string; subtitle: string }[]} */
+  const items = []
+
+  for (const c of compRes.data ?? []) {
+    items.push({
+      at: c.created_at,
+      kind: 'complaint',
+      title: `Complaint · ${pickField(c, ['type', 'category']) ?? 'Issue'}`,
+      subtitle: `${tenantName[c.tenant_id] ?? 'Tenant'} · ${String(c.status ?? '')}`,
+    })
+  }
+  for (const inv of invRes.data ?? []) {
+    items.push({
+      at: inv.created_at,
+      kind: 'invoice',
+      title: 'Invoice issued',
+      subtitle: `${tenantName[inv.tenant_id] ?? 'Tenant'} · ${String(inv.status ?? '')}`,
+    })
+  }
+  for (const r of recRes.data ?? []) {
+    items.push({
+      at: r.sent_at,
+      kind: 'receipt',
+      title: 'Receipt sent',
+      subtitle: tenantName[r.tenant_id] ?? 'Tenant',
+    })
+  }
+
+  items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+
+  return {
+    items: items.slice(0, limit),
+    error:
+      compRes.error?.message ||
+      invRes.error?.message ||
+      recRes.error?.message ||
+      null,
+  }
+}
+
+function totalUnitsOnPropertyRow(row) {
+  const n = Number(
+    pickField(row, [
+      'number_of_units',
+      'unit_count',
+      'total_units',
+      'units',
+    ]) ?? 0
+  )
+  return Number.isFinite(n) && n > 0 ? n : 0
+}
+
+/**
+ * Portfolio capacity vs assigned tenants (dashboard occupancy widget).
+ * @param {string} managerId
+ */
+export async function fetchOccupancySummary(managerId) {
+  const { data: properties, error: pErr } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('manager_id', managerId)
+  const { data: tenantRows, error: tErr } = await supabase
+    .from('tenants')
+    .select('property_id')
+    .eq('manager_id', managerId)
+
+  if (pErr) {
+    return {
+      totalUnits: 0,
+      occupiedUnits: 0,
+      vacantUnits: 0,
+      byProperty: [],
+      error: pErr,
+    }
+  }
+
+  const props = properties ?? []
+  let totalCap = 0
+  const counts = new Map()
+  for (const t of tenantRows ?? []) {
+    if (!t.property_id) continue
+    counts.set(t.property_id, (counts.get(t.property_id) ?? 0) + 1)
+  }
+
+  const byProperty = []
+  for (const p of props) {
+    const cap = totalUnitsOnPropertyRow(p)
+    totalCap += cap
+    const occ = counts.get(p.id) ?? 0
+    byProperty.push({
+      id: p.id,
+      name: pickField(p, ['name', 'title', 'property_name']) ?? '—',
+      occupied: occ,
+      total: cap,
+    })
+  }
+
+  const occupiedUnits = (tenantRows ?? []).filter((t) => t.property_id).length
+  const vacantUnits = Math.max(0, totalCap - occupiedUnits)
+
+  return {
+    totalUnits: totalCap,
+    occupiedUnits,
+    vacantUnits,
+    byProperty,
+    error: tErr,
+  }
+}
+
+/**
+ * One-month rent still “on the table” (est.) for dashboard summary row.
+ * @param {string} managerId
+ */
+export async function fetchRentArrearsEstimate(managerId) {
+  const { data: tenantRows, error } = await supabase
+    .from('tenants')
+    .select('*')
+    .eq('manager_id', managerId)
+
+  if (error) {
+    return { outstanding: 0, overdue: 0, error }
+  }
+
+  let outstanding = 0
+  let overdue = 0
+  for (const t of tenantRows ?? []) {
+    const m = tenantMonthlyRentHint(t)
+    if (m == null || !Number.isFinite(m)) continue
+    const st = normalizeTenantPaymentStatus(
+      pickField(t, ['payment_status', 'status', 'rent_status'])
+    )
+    if (st === 'paid') continue
+    outstanding += m
+    if (st === 'overdue') overdue += m
+  }
+  return { outstanding, overdue, error: null }
+}
+
+/**
  * Full dashboard fetch — aggregates errors into a single message if needed.
  * @param {string} managerId
  */
@@ -256,6 +492,10 @@ export async function fetchDashboardBundle(managerId) {
     stale,
     expiring,
     recent,
+    collection,
+    activity,
+    occupancy,
+    arrears,
   ] = await Promise.all([
     fetchTotalUnits(managerId),
     fetchActiveTenantsCount(managerId),
@@ -265,6 +505,10 @@ export async function fetchDashboardBundle(managerId) {
     fetchStaleUnassignedComplaintsCount(managerId),
     fetchExpiringLeasesCount(managerId),
     fetchRecentComplaints(managerId, 4),
+    fetchMonthlyCollection(managerId),
+    fetchActivityFeedItems(managerId, 8),
+    fetchOccupancySummary(managerId),
+    fetchRentArrearsEstimate(managerId),
   ])
 
   const errors = [
@@ -276,6 +520,10 @@ export async function fetchDashboardBundle(managerId) {
     stale.error,
     expiring.error,
     recent.error,
+    collection.error,
+    activity.error,
+    occupancy.error,
+    arrears.error,
   ].filter(Boolean)
 
   const firstError = errors[0]
@@ -296,6 +544,18 @@ export async function fetchDashboardBundle(managerId) {
       expiringLeases: expiring.value,
     },
     recentComplaints: recent.data,
+    collectionMonths: collection.months ?? [],
+    activityItems: activity.items ?? [],
+    occupancy: {
+      totalUnits: occupancy.totalUnits ?? 0,
+      occupiedUnits: occupancy.occupiedUnits ?? 0,
+      vacantUnits: occupancy.vacantUnits ?? 0,
+      byProperty: occupancy.byProperty ?? [],
+    },
+    arrears: {
+      outstanding: arrears.outstanding ?? 0,
+      overdue: arrears.overdue ?? 0,
+    },
     error: errorMessage,
     partial: errors.length > 0,
   }

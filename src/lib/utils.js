@@ -98,3 +98,71 @@ export function normalizeTenantPaymentStatus(raw) {
   if (s.includes('paid') || s === 'cleared') return 'paid'
   return 'pending'
 }
+
+/** Maps DB / free-text trade to filter slug (PRD §8.8). */
+export function normalizeVendorTradeSlug(raw) {
+  const s = String(raw ?? '').toLowerCase().replace(/_/g, '-')
+  if (s.includes('plumb')) return 'plumber'
+  if (s.includes('electric')) return 'electrician'
+  if (s.includes('pest')) return 'pest-control'
+  if (s.includes('secur')) return 'security'
+  if (s.includes('paint')) return 'painter'
+  if (s.includes('carpent')) return 'carpenter'
+  if (s.includes('ac') || s.includes('air-cond') || s.includes('hvac')) {
+    return 'ac-technician'
+  }
+  if (
+    [
+      'plumber',
+      'electrician',
+      'ac-technician',
+      'pest-control',
+      'security',
+      'painter',
+      'carpenter',
+      'general',
+    ].includes(s)
+  ) {
+    return s
+  }
+  return 'general'
+}
+
+/** Display label for trade slug */
+/** Maps DB status to filter/badge bucket: open | in-progress | resolved */
+export function normalizeComplaintStatusKey(raw) {
+  const s = String(raw ?? 'open').toLowerCase().replace(/_/g, '-')
+  if (['resolved', 'closed', 'cancelled'].includes(s)) return 'resolved'
+  if (s === 'in-progress' || s.includes('progress')) return 'in-progress'
+  return 'open'
+}
+
+/** PRD priority badges */
+export function normalizeComplaintPriority(raw) {
+  const s = String(raw ?? 'medium').toLowerCase()
+  if (s.includes('critical')) return 'critical'
+  if (s.includes('high')) return 'high'
+  if (s.includes('low')) return 'low'
+  return 'medium'
+}
+
+/** Short id for tables (monospace column). */
+export function shortRecordId(id, head = 8) {
+  if (id == null) return '—'
+  const s = String(id)
+  return s.length > head + 2 ? `${s.slice(0, head)}…` : s
+}
+
+export function vendorTradeLabel(slug) {
+  const row = [
+    { value: 'plumber', label: 'Plumber' },
+    { value: 'electrician', label: 'Electrician' },
+    { value: 'ac-technician', label: 'AC Technician' },
+    { value: 'pest-control', label: 'Pest Control' },
+    { value: 'security', label: 'Security' },
+    { value: 'painter', label: 'Painter' },
+    { value: 'carpenter', label: 'Carpenter' },
+    { value: 'general', label: 'General' },
+  ].find((o) => o.value === slug)
+  return row?.label ?? 'General'
+}

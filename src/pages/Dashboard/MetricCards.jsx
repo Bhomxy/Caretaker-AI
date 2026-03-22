@@ -2,63 +2,111 @@ import { Link } from 'react-router-dom'
 import Skeleton from '../../components/ui/Skeleton'
 import { formatNaira } from '../../lib/utils'
 
-function MetricCard({ to, label, value, loading, highlight }) {
-  const inner = loading ? (
-    <Skeleton className="h-8 w-24" />
-  ) : (
-    <p className="text-2xl font-extrabold tracking-tight text-ink">{value}</p>
-  )
-
+/**
+ * @param {{
+ *   to: string
+ *   icon: string
+ *   label: string
+ *   value: string
+ *   sub: string
+ *   subPositive?: boolean
+ *   loading: boolean
+ *   highlight?: boolean
+ * }} props
+ */
+function MetricCard({
+  to,
+  icon,
+  label,
+  value,
+  sub,
+  subPositive = true,
+  loading,
+  highlight,
+}) {
   return (
     <Link
       to={to}
       className={[
-        'block rounded-xl border bg-card p-5 shadow-soft transition-colors hover:bg-teal-pale/40',
-        highlight
-          ? 'border-2 border-red'
-          : 'border-border hover:border-border-s',
+        'block cursor-pointer rounded-[10px] border bg-card p-4 shadow-soft transition-[border-color,box-shadow] hover:border-border-s hover:shadow-soft-xs',
+        highlight ? 'border-2 border-red' : 'border-border',
       ].join(' ')}
     >
-      <p className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">
+      <div className="mb-2.5 flex h-8 w-8 items-center justify-center rounded-lg bg-teal-pale text-base">
+        {icon}
+      </div>
+      <p className="mb-1.5 text-[11px] font-semibold tracking-wide text-ink-secondary">
         {label}
       </p>
-      <div className="mt-2">{inner}</div>
+      {loading ? (
+        <Skeleton className="mb-2 h-7 w-20" />
+      ) : (
+        <p className="mb-1 text-[26px] font-extrabold leading-none tracking-tight text-ink">
+          {value}
+        </p>
+      )}
+      <p
+        className={`text-xs font-medium ${
+          subPositive ? 'text-green' : 'text-red'
+        }`}
+      >
+        {sub}
+      </p>
     </Link>
   )
 }
 
 /**
- * PRD §8.1 — four metric cards, each navigates to the right area.
+ * PRD §8.1 — prototype-style metric row (caretaker-ai.html).
  */
 export default function MetricCards({ metrics, loading }) {
   const open = metrics?.openComplaints ?? 0
   const openHighlight = !loading && open > 5
+  const calm = !loading && open <= 5
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <MetricCard
         to="/properties"
+        icon="🏢"
         label="Total units"
         value={loading ? '' : String(metrics?.totalUnits ?? 0)}
+        sub="Across all properties"
+        subPositive
         loading={loading}
       />
       <MetricCard
         to="/tenants"
+        icon="👤"
         label="Active tenants"
         value={loading ? '' : String(metrics?.activeTenants ?? 0)}
+        sub="Across your portfolio"
+        subPositive
         loading={loading}
       />
       <MetricCard
         to="/complaints"
+        icon="⚠️"
         label="Open complaints"
         value={loading ? '' : String(open)}
+        sub={
+          loading
+            ? '…'
+            : open > 5
+              ? '↑ Needs attention'
+              : 'Under control'
+        }
+        subPositive={calm}
         loading={loading}
         highlight={openHighlight}
       />
       <MetricCard
         to="/payments"
+        icon="₦"
         label="Charges collected YTD"
         value={loading ? '' : formatNaira(metrics?.ytdCharges ?? 0)}
+        sub="Approved payments this year"
+        subPositive
         loading={loading}
       />
     </div>
