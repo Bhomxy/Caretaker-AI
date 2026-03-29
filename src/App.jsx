@@ -17,8 +17,33 @@ import VendorsPage from './pages/Vendors/index'
 import VendorDetailPage from './pages/Vendors/VendorDetail'
 import InsightsPage from './pages/Insights/index'
 import SettingsPage from './pages/Settings/index'
+import { isSupabaseConfigured } from './lib/supabase'
+
+function MissingEnvScreen() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-page p-6">
+      <div className="w-full max-w-xl rounded-xl border border-gold-d/35 bg-card p-6 shadow-soft">
+        <h1 className="text-lg font-extrabold text-ink">
+          Missing Supabase environment variables
+        </h1>
+        <p className="mt-2 text-sm font-medium leading-relaxed text-ink-secondary">
+          Set <code>VITE_SUPABASE_URL</code> and{' '}
+          <code>VITE_SUPABASE_ANON_KEY</code> in your deployment environment,
+          then redeploy.
+        </p>
+        <p className="mt-3 text-xs font-semibold text-ink-muted">
+          Vercel → Project Settings → Environment Variables
+        </p>
+      </div>
+    </div>
+  )
+}
 
 export default function App() {
+  if (!isSupabaseConfigured()) {
+    return <MissingEnvScreen />
+  }
+
   return (
     <BrowserRouter>
       <AuthProvider>
