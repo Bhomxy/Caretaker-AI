@@ -14,7 +14,7 @@
 
 do $seed$
 declare
-  v_manager uuid := '00000000-0000-0000-0000-000000000000'; -- ◄◄◄ REPLACE with your auth.users id
+  v_manager uuid := 'a7694d82-1fee-427f-928d-227c8ccbcaa2'; -- ◄◄◄ REPLACE with your auth.users id
 
   p_lekki    uuid := 'a1000000-0000-4000-8000-000000000001';
   p_surulere uuid := 'a1000000-0000-4000-8000-000000000002';
