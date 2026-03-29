@@ -216,7 +216,7 @@ export async function fetchRecentComplaints(managerId, limit = 4) {
     propIds.length
       ? supabase
           .from('properties')
-          .select('id, name, title, property_name')
+          .select('*')
           .in('id', propIds)
       : Promise.resolve({ data: [] }),
   ])

@@ -70,7 +70,7 @@ export async function fetchVendorsList(managerId) {
       .eq('manager_id', managerId),
     supabase
       .from('properties')
-      .select('id, name, title, property_name')
+      .select('*')
       .eq('manager_id', managerId)
       .order('id', { ascending: true }),
   ])
@@ -243,7 +243,7 @@ export async function fetchVendorDetailBundle(managerId, vendorId) {
       .order('created_at', { ascending: false }),
     supabase
       .from('properties')
-      .select('id, name, title, property_name')
+      .select('*')
       .eq('manager_id', managerId),
   ])
 

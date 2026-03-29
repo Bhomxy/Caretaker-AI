@@ -225,7 +225,7 @@ export async function fetchPaymentsBundle(managerId) {
       .order('full_name', { ascending: true }),
     supabase
       .from('properties')
-      .select('id, name, title, property_name')
+      .select('*')
       .eq('manager_id', managerId),
     supabase
       .from('invoices')

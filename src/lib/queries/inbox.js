@@ -27,7 +27,7 @@ export async function fetchInboxThreadsBundle(managerId) {
       : Promise.resolve({ data: [] }),
     supabase
       .from('properties')
-      .select('id, name, title, property_name')
+      .select('*')
       .eq('manager_id', managerId),
   ])
 

@@ -20,7 +20,7 @@ export async function fetchTenantListBundle(managerId) {
       .order('created_at', { ascending: false }),
     supabase
       .from('properties')
-      .select('id, name, title, property_name')
+      .select('*')
       .eq('manager_id', managerId)
       .order('id', { ascending: true }),
     supabase
@@ -128,7 +128,7 @@ export async function fetchTenantDetailBundle(managerId, tenantId) {
     pid
       ? supabase
           .from('properties')
-          .select('id, name, title, property_name')
+          .select('*')
           .eq('id', pid)
           .eq('manager_id', managerId)
           .maybeSingle()

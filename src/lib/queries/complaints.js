@@ -54,7 +54,7 @@ export async function fetchComplaintsListBundle(managerId) {
     propertyIds.length
       ? supabase
           .from('properties')
-          .select('id, name, title, property_name')
+          .select('*')
           .eq('manager_id', managerId)
           .in('id', propertyIds)
       : Promise.resolve({ data: [] }),
@@ -67,7 +67,7 @@ export async function fetchComplaintsListBundle(managerId) {
       : Promise.resolve({ data: [] }),
     supabase
       .from('properties')
-      .select('id, name, title, property_name')
+      .select('*')
       .eq('manager_id', managerId)
       .order('id', { ascending: true }),
     supabase
